@@ -17,5 +17,6 @@ void main (void)
 	{
 		if(Is_DispPhoto==1) OV_display();
 		printf("Freq2 = %dHz. \nFreq3 = %dHz. \n", Freq2, Freq3);
+		OV_binary_data(0,0) = 1;
 	} 
 }

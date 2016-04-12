@@ -2097,6 +2097,12 @@
   <group>
     <name>app</name>
     <group>
+      <name>cal</name>
+      <file>
+        <name>$PROJ_DIR$\..\app\_cal\OV_cal.c</name>
+      </file>
+    </group>
+    <group>
       <name>conf</name>
       <file>
         <name>$PROJ_DIR$\..\app\_config\ADCConfig.c</name>

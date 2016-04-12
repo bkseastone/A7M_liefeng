@@ -64,7 +64,7 @@ void OV_dma_init(void)
 	//DMA参数配置
 	OV_dma_init_struct.DMA_CHx = DMA_CH0;    //CH0通道
 	OV_dma_init_struct.DMA_Req = PORTE_DMAREQ;       //PORTE为请求源
-	OV_dma_init_struct.DMA_MajorLoopCnt = H; //主循环计数值：行采集点数，宽度
+	OV_dma_init_struct.DMA_MajorLoopCnt = OV_P; //主循环计数值：行采集点数，宽度
 	OV_dma_init_struct.DMA_MinorByteCnt = 1; //次循环字节计数：每次读入1字节
 	OV_dma_init_struct.DMA_SourceAddr = (uint32)&PTD->PDIR+1;        //源地址：PTD8~15  0x400FF0D1u
 	OV_dma_init_struct.DMA_DestAddr = (uint32)Pix_Data;      //目的地址：存放图像的数组
@@ -93,7 +93,7 @@ void OV_portb_Hisr(void)
 	if(LPLD_GPIO_IsPinxExt(PORTB, GPIO_Pin3))
 	{
 		//检测到行开始信号，使能DMA请求
-		if(V_Cnt<V){
+		if(V_Cnt<OV_H){
 			LPLD_DMA_EnableReq(DMA_CH0);  
 			V_Cnt++; 
 		}
@@ -140,11 +140,11 @@ void OV_display(void)
 	uint16 row, col;
 	Is_DispPhoto = 0;
 	printf("%c%c%c%c", 0, 255, 1, 0); //上位机命令字
-	for(row=0;row<=V-1;row++)
+	for(row=0;row<=OV_H-1;row++)
 	{
-		for(col=0;col<=H-1;col++)
+		for(col=0;col<=OV_P-1;col++)
 		{
-			LPLD_UART_PutChar(UART5, Pix_Data[row*H + col]);
+			LPLD_UART_PutChar(UART5, Pix_Data[row*OV_P + col]);
 		}
 	}
 	LPLD_GPIO_ClearIntFlag(PORTA);//清PORTA中断标志

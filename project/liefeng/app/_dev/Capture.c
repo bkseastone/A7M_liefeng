@@ -1,5 +1,9 @@
 #include "Capture.h"
-
+/*	Inout Capture
+	Note that the maximum frequency for the channel input signal to be
+detected correctly is system clock divided by 4, which is required to 
+meet Nyquist criteria for signal sampling.
+*/
 FTM_InitTypeDef ic_init_struct;
 extern uint32 Freq2;
 extern uint32 Freq3;

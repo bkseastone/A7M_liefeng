@@ -4,9 +4,9 @@
 #define _OV7620_H_
 
 
-#define H 320  //图像宽度
-#define V 240  //图像高度
-#define PHOTO_SIZE H*V
+#define OV_P 320u  //图像宽度
+#define OV_H 240u  //图像高度
+#define PHOTO_SIZE OV_P*OV_H
 
 void ov7620_dma_start(void);
 uint8 ov7620_init();
