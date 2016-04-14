@@ -14,6 +14,13 @@ void portc4_isr(void)
 	}
 }
 
+void uart4_isr(void)
+{
+	int8 recv;
+	recv = LPLD_UART_GetChar(UART4);
+	LPLD_UART_PutChar(UART4, recv);
+}
+
 void uart5_isr(void)
 {
 	int8 recv;
@@ -41,7 +48,7 @@ void adc0_isr(void)
 	int16 result;
 	uint8 ab = LPLD_ADC_GetSC1nCOCO(ADC0);//判断转换完成的是A组还是B组
 	result = LPLD_ADC_GetResult(ADC0, ab);//获取采样结果
-	printf("ADC0_R[%d]=%d\r\n", ab, result);//打印输出结果
+	printf("ADC0_R[%d]=%d\r\n", ab, result);//打印输出结果  
 	LPLD_ADC_EnableConversion(ADC0, DAD1, 0, TRUE);
 }
 

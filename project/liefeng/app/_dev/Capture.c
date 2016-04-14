@@ -1,5 +1,9 @@
 #include "Capture.h"
-
+/*	Inout Capture
+	Note that the maximum frequency for the channel input signal to be
+detected correctly is system clock divided by 4, which is required to 
+meet Nyquist criteria for signal sampling.
+*/
 FTM_InitTypeDef ic_init_struct;
 extern uint32 Freq2;
 extern uint32 Freq3;
@@ -52,16 +56,16 @@ void ic3_isr(void)
 {
 	uint32 cnt;
 	//判断是否为FTM1的Ch0通道产生捕获中断
-	if(LPLD_FTM_IsCHnF(FTM3, FTM_Ch0))
+	if(LPLD_FTM_IsCHnF(FTM2, FTM_Ch1))
 	{
 		//获取FTM1的Ch0通道计数值
-		cnt=LPLD_FTM_GetChVal(FTM3, FTM_Ch0);   
+		cnt=LPLD_FTM_GetChVal(FTM2, FTM_Ch1);   
 		//根据总线频率、分频系数、计数值计算脉冲频率
 		//脉冲频率=(总线频率/输入捕获分频)/计数值
-		Freq3=(g_bus_clock/LPLD_FTM_GetClkDiv(FTM3))/cnt; 
+		Freq3=(g_bus_clock/LPLD_FTM_GetClkDiv(FTM2))/cnt; 
 		//清空FTM1 COUNTER
-		LPLD_FTM_ClearCounter(FTM3);
+		LPLD_FTM_ClearCounter(FTM2);
 		//清除输入中断标志
-		LPLD_FTM_ClearCHnF(FTM3, FTM_Ch0); 
+		LPLD_FTM_ClearCHnF(FTM2, FTM_Ch1); 
 	}
 }

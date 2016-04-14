@@ -61,22 +61,15 @@ void pdb_init(void)
  *    1--配置成功
  */
 PDB_InitTypeDef pdb_init_struct;
-uint8 pdb_init(uint8 PDB_TriggerInputSourceSel, ADC_Type *ADC_Adcx)
+void pdb_init(uint8 PDB_TriggerInputSourceSel, ADC_Type *ADC_Adcx)
 {
 	pdb_init_struct.PDB_CounterPeriodUs = 10;   //PDB计数器周期设置
 	pdb_init_struct.PDB_LoadModeSel = LOADMODE_0; //加载模式设置
 	pdb_init_struct.PDB_DelayS = 2;    //中断延时时间2秒
 	pdb_init_struct.PDB_ContinuousModeEnable = FALSE;     //禁用连续工作模式
 	pdb_init_struct.PDB_TriggerInputSourceSel = PDB_TriggerInputSourceSel;     //配置触发源为PIT0
-	if( LPLD_PDB_Init(pdb_init_struct) && \
-		LPLD_PDB_AdcTriggerCfg(ADC_Adcx, PRETRIG_EN_A, 0) )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+	LPLD_PDB_Init(pdb_init_struct);
+	LPLD_PDB_AdcTriggerCfg(ADC_Adcx, PRETRIG_EN_A, 0);
 }
 
 /*
@@ -96,16 +89,9 @@ void pit0_init(void)
  *  1--配置成功
  */
 PIT_InitTypeDef pit_init_struct;
-uint8 pit_init(PITx PIT_Pitx, uint32 PIT_PeriodUs)
+void pit_init(PITx PIT_Pitx, uint32 PIT_PeriodUs)
 {
 	pit_init_struct.PIT_Pitx = PIT_Pitx;     //选择PIT0
 	pit_init_struct.PIT_PeriodUs = PIT_PeriodUs;  //PIT0计数周期500ms
-	if( LPLD_PIT_Init(pit_init_struct) )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+	LPLD_PIT_Init(pit_init_struct);  
 }

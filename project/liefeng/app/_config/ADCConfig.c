@@ -3,12 +3,9 @@
 #include "time.h"
 
 ADC_InitTypeDef adc_init_struct;
-ADCstatus adc_init(myadc *adc, uint32 PIT_PeriodUs)
-{
-	if( pdb_init(adc->PDB_TriggerInputSourceSel, adc->ADC_Adcx)==0 )
-	{
-		return error_init_pdb;
-	}
+void adc_init(myadc *adc, uint32 PIT_PeriodUs)
+{	
+	pdb_init(adc->PDB_TriggerInputSourceSel, adc->ADC_Adcx);
 	
 	adc_init_struct.ADC_Adcx = adc->ADC_Adcx;
 	adc_init_struct.ADC_DiffMode = ADC_SE;        //单端采集
@@ -22,20 +19,11 @@ ADCstatus adc_init(myadc *adc, uint32 PIT_PeriodUs)
 	adc_init_struct.ADC_DmaEnable = FALSE;			//禁用DMA
 	adc_init_struct.ADC_Isr = adc->isr;  //设置ADC中断函数
 
-	if( LPLD_ADC_Init(adc_init_struct)==0 || \
-		LPLD_ADC_Chn_Enable(adc->ADC_Adcx, adc->chn)==0 || \
-		LPLD_ADC_EnableIrq(adc_init_struct)==0 )	
-	{
-		return error_init_adc;
-	}
-	LPLD_ADC_EnableConversion(adc->ADC_Adcx, adc->chn, 0, TRUE);
+	LPLD_ADC_Init(adc_init_struct);   //初始化ADC0
+	LPLD_ADC_Chn_Enable(adc->ADC_Adcx, adc->chn);	//使能ADC0的DAD1输入引脚复用功能
+	LPLD_ADC_EnableConversion(adc->ADC_Adcx, adc->chn, 0, TRUE);	//使能ADC0的DAD1输入通道及其转换完成中断
+	LPLD_ADC_EnableIrq(adc_init_struct);	//使能ADC0中断
 	
-	if( pit_init(adc->PIT_Pitx, PIT_PeriodUs)==0 )
-	{
-		return error_init_pit;
-	}
-	else
-	{
-		return OK;
-	}
+	pit_init(adc->PIT_Pitx, PIT_PeriodUs);
+	printf("adc OK!\n");
 }

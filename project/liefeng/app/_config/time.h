@@ -14,8 +14,8 @@ typedef struct
 status ftm_pwm_init(mypwm *pwm, uint32 FTM_PwmFreq, uint32 duty);
 uint32 angle_to_period(uint32 angle);
 void delay();
-uint8 pit_init(PITx PIT_Pitx, uint32 PIT_PeriodUs);
-uint8 pdb_init(uint8 PDB_TriggerInputSourceSel, ADC_Type *ADC_Adcx);
+void pit_init(PITx PIT_Pitx, uint32 PIT_PeriodUs);
+void pdb_init(uint8 PDB_TriggerInputSourceSel, ADC_Type *ADC_Adcx);
 
 
 #endif
