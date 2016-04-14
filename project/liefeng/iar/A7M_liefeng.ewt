@@ -2144,10 +2144,7 @@
         <name>$PROJ_DIR$\..\app\_dev\Capture.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\app\_dev\OV7620.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\app\_dev\OV7620.h</name>
+        <name>$PROJ_DIR$\..\app\_dev\OV7725_eagle.c</name>
       </file>
     </group>
     <file>
@@ -2384,9 +2381,6 @@
         <name>$PROJ_DIR$\..\..\..\lib\LPLD\LPLD_Drivers.h</name>
       </file>
     </group>
-  </group>
-  <group>
-    <name>Output</name>
   </group>
 </project>
 
