@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\freescale\A7M_liefeng\project\liefeng\iar\settings\A7M_liefeng.Debug.general.xcl" --backend -f "A:\freescale\A7M_liefeng\project\liefeng\iar\settings\A7M_liefeng.Debug.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "D:\A7M\project\liefeng\iar\settings\A7M_liefeng.Debug.general.xcl" --backend -f "D:\A7M\project\liefeng\iar\settings\A7M_liefeng.Debug.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\freescale\A7M_liefeng\project\liefeng\iar\settings\A7M_liefeng.Debug.general.xcl" "--debug_file=%~1" --backend -f "A:\freescale\A7M_liefeng\project\liefeng\iar\settings\A7M_liefeng.Debug.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "D:\A7M\project\liefeng\iar\settings\A7M_liefeng.Debug.general.xcl" "--debug_file=%~1" --backend -f "D:\A7M\project\liefeng\iar\settings\A7M_liefeng.Debug.driver.xcl" 
 
 @echo off 
 :end

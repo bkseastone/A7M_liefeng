@@ -742,7 +742,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>A:\freescale\A7M_liefeng\lib\iar_config_files\512KB_Pflash.icf</state>
+          <state>$PROJ_DIR$\..\..\..\lib\iar_config_files\512KB_Pflash.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
