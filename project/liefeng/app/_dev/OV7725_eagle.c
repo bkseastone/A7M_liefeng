@@ -5,6 +5,8 @@
 说明：
 *将OV7725上位机波特率设置为115200
 *使用上位机查看运行结果
+
+*未在陷阱内设置UI
 ****************************************/
 extern uint8 Is_DispPhoto;               //图像发送标志
 
@@ -28,15 +30,15 @@ void ov7725_dma_start(void)
 reg_s ov7725_eagle_reg[] =
 {
     //寄存器，寄存器值次
-    {OV7725_COM4         , 0xC1},
-    {OV7725_CLKRC        , 0x00},
-    {OV7725_COM2         , 0x03},
+    {OV7725_COM4         , 0xC1}, //PLL 8x; AEC evaluate window
+    {OV7725_CLKRC        , 0x00}, //internal clock pre-scalar
+    {OV7725_COM2         , 0x03}, //IoL/IoH
     {OV7725_COM3         , 0xD0},
     {OV7725_COM7         , 0x40},
     {OV7725_HSTART       , 0x3F},
-    {OV7725_HSIZE        , 0x50},
+    {OV7725_HSIZE        , 0x50}, // 80
     {OV7725_VSTRT        , 0x03},
-    {OV7725_VSIZE        , 0x78},
+    {OV7725_VSIZE        , 0x78}, // 120
     {OV7725_HREF         , 0x00},
     {OV7725_SCAL0        , 0x0A},
     {OV7725_AWB_Ctrl0    , 0xE0},
@@ -86,17 +88,17 @@ reg_s ov7725_eagle_reg[] =
     {OV7725_GAM14        , 0xd7},
     {OV7725_GAM15        , 0xe8},
     {OV7725_SLOP         , 0x20},
-    {OV7725_LC_RADI      , 0x00},
-    {OV7725_LC_COEF      , 0x13},
-    {OV7725_LC_XC        , 0x08},
-    {OV7725_LC_COEFB     , 0x14},
-    {OV7725_LC_COEFR     , 0x17},
-    {OV7725_LC_CTR       , 0x05},
+    {OV7725_LC_RADI      , 0x00},  //0x00
+    {OV7725_LC_COEF      , 0x13},  //0x13
+    {OV7725_LC_XC        , 0x08},  //0x08
+    {OV7725_LC_COEFB     , 0x14},  //0x14
+    {OV7725_LC_COEFR     , 0x17},  //0x17
+    {OV7725_LC_CTR       , 0x05},  //0x05
     {OV7725_BDBase       , 0x99},
     {OV7725_BDMStep      , 0x03},
     {OV7725_SDE          , 0x04},
-    {OV7725_BRIGHT       , 0x00},
-    {OV7725_CNST         , 0xFF},
+    {OV7725_BRIGHT       , 0x00}, //brightness 0x00
+    {OV7725_CNST         , 0xFF}, //contrast gain  0xFF
     {OV7725_SIGN         , 0x06},
     {OV7725_UVADJ0       , 0x11},
     {OV7725_UVADJ1       , 0x02},
@@ -133,7 +135,7 @@ void OV_dma_init(void)
 	//DMA参数配置
 	OV_dma_init_struct.DMA_CHx = DMA_CH0;    //CH0通道
 	OV_dma_init_struct.DMA_Req = PORTE_DMAREQ;       //PORTE为请求源
-	OV_dma_init_struct.DMA_MajorLoopCnt = CAMERA_W*CAMERA_H/8; //主循环计数值：行采集点数，宽度
+	OV_dma_init_struct.DMA_MajorLoopCnt = 2+CAMERA_W*CAMERA_H/8; //主循环计数值：行采集点数，宽度
 	OV_dma_init_struct.DMA_MinorByteCnt = 1; //次循环字节计数：每次读入1字节
 	OV_dma_init_struct.DMA_SourceAddr = (uint32)&PTD->PDIR+1;        //源地址：PTD8~15  0x400FF0D1u
 	OV_dma_init_struct.DMA_DestAddr = OV_binary_ADDR;      //目的地址：存放图像的数组
@@ -162,14 +164,14 @@ void OV_gpio_init(void)
 	OV_pta_init.GPIO_PTx = PTA;
 	OV_pta_init.GPIO_Dir = DIR_INPUT;
 	OV_pta_init.GPIO_Pins = GPIO_Pin5;
-	OV_pta_init.GPIO_PinControl = IRQC_RI|INPUT_PULL_DOWN;
+	OV_pta_init.GPIO_PinControl = IRQC_FA|INPUT_PULL_DOWN|INPUT_PF_EN;
 	OV_pta_init.GPIO_Isr = OV_porta_Visr;
 	LPLD_GPIO_Init(OV_pta_init); 
 	//OV PCLK信号接口初始化：PTE6-PCLK
 	OV_pte_init.GPIO_PTx = PTE;
 	OV_pte_init.GPIO_Pins = GPIO_Pin6;
 	OV_pte_init.GPIO_Dir = DIR_INPUT;
-	OV_pte_init.GPIO_PinControl = IRQC_DMARI | INPUT_PULL_DOWN; 
+	OV_pte_init.GPIO_PinControl = IRQC_DMARI | INPUT_PULL_DOWN|INPUT_PF_EN; 
 	LPLD_GPIO_Init(OV_pte_init); 
 }
 
@@ -211,17 +213,17 @@ void OV_display(void)
 {
 	uint16 row, col;
 	Is_DispPhoto = 0;
-	LPLD_UART_PutChar(UART4, 0x01); //上位机命令字
-	LPLD_UART_PutChar(UART4, 0xFE);
+	LPLD_UART_PutChar(UART5, 0u); //上位机命令字
+	LPLD_UART_PutChar(UART5, 255u);
+	LPLD_UART_PutChar(UART5, 1u);
+	LPLD_UART_PutChar(UART5, 0u);
 	for(row=0;row<=CAMERA_H-1;row++)
 	{
 		for(col=0;col<=CAMERA_W-1;col++)
 		{
-			LPLD_UART_PutChar(UART4, OV_binary_data(row,col));
+			LPLD_UART_PutChar(UART5, !OV_binary_data(row,col));
 		}
 	}
-	LPLD_UART_PutChar(UART4, 0xFE);
-	LPLD_UART_PutChar(UART4, 0x01);
 	LPLD_GPIO_ClearIntFlag(PORTA);//清PORTA中断标志
 	enable_irq(PORTA_IRQn);//使能PORTA中断
 }

@@ -172,13 +172,14 @@ typedef struct
  * @param Pix Lines` pixels to access, ranging in [0~OV_P-1].
  * @return Value of the targeted bit in the bit band region.
  */
-#define CAMERA_W 240u  //图像宽度
-#define CAMERA_H 180u  //图像高度
+#define CAMERA_W 80u  //图像宽度 80
+#define CAMERA_H 60u  //图像高度 120
 #define SRAM_U_BASE						0x20000000u
 #define OV_binary_BASE					SRAM_U_BASE
 #define OV_binary_ADDR					((uint32)((uint32 *)OV_binary_BASE))
 #define OV_pics_LineNum(Lines)			(4u*((uint32_t)Lines*CAMERA_W))
-#define OV_binary_data(Line,Pix) (*((uint32_t volatile*)(0x22000000u + (OV_pics_LineNum(Line)) + (4u*(uint32_t)Pix))))
+#define OV_binary_data(Line,Pix) (*((uint32_t volatile*)(0x22000040u + (OV_pics_LineNum(Line)) + (4u*(uint32_t)Pix))))
+
 
 
 
