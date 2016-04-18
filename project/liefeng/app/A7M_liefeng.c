@@ -1,5 +1,4 @@
 #include "main.h"
-volatile char pic_buff[2+CAMERA_W*CAMERA_H/8] @OV_binary_ADDR;
 void main (void)
 {	
 	//init_gpio_led_on();

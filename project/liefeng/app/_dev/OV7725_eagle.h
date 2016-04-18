@@ -174,12 +174,13 @@ typedef struct
  */
 #define CAMERA_W 80u  //图像宽度 80
 #define CAMERA_H 60u  //图像高度 120
+#define CAMERA_PAGE 2  //图像张数
 #define SRAM_U_BASE						0x20000000u
 #define OV_binary_BASE					SRAM_U_BASE
 #define OV_binary_ADDR					((uint32)((uint32 *)OV_binary_BASE))
 #define OV_pics_LineNum(Lines)			(4u*((uint32_t)Lines*CAMERA_W))
-#define OV_binary_data(Line,Pix) (*((uint32_t volatile*)(0x22000040u + (OV_pics_LineNum(Line)) + (4u*(uint32_t)Pix))))
-
+#define OV_binary_data(Line,Pix)		(*((uint32_t *)(0x22000040u + (OV_pics_LineNum(Line)) + (4u*(uint32_t)Pix))))
+#define OV_binary_BONDADDR(Line,Pix)	((uint32)(uint32 *)(0x22000000u + (OV_pics_LineNum(Line)) + (4u*(uint32_t)Pix)))
 
 
 

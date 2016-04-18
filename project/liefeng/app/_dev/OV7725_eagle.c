@@ -8,6 +8,29 @@
 
 *未在陷阱内设置UI
 ****************************************/
+volatile char pic_buff[CAMERA_PAGE*(2+CAMERA_W*CAMERA_H/8)] @OV_binary_ADDR; //显式声明占用该位带段内存
+struct{
+	volatile uint32 pic1_data[CAMERA_H][CAMERA_W];
+#if (CAMERA_PAGE == 2)
+	uint32 occupy2[16]; //跳过VSYN与HSYN间的16个像素
+	volatile uint32 pic2_data[CAMERA_H][CAMERA_W];
+#elif (CAMERA_PAGE == 3)
+	uint32 occupy3[16];
+	volatile uint32 pic3_data[CAMERA_H][CAMERA_W];
+#elif (CAMERA_PAGE == 4)
+	uint32 occupy4[16];
+	volatile uint32 pic4_data[CAMERA_H][CAMERA_W];
+#elif (CAMERA_PAGE == 5)
+	uint32 occupy5[16];
+	volatile uint32 pic5_data[CAMERA_H][CAMERA_W];
+#elif (CAMERA_PAGE == 6)
+	uint32 occupy6[16];
+	volatile uint32 pic6_data[CAMERA_H][CAMERA_W];
+#else
+	
+#endif
+} OV_pictures @OV_binary_BONDADDR(0*CAMERA_H,16); //跳过VSYN与HSYN间的16个像素
+
 extern uint8 Is_DispPhoto;               //图像发送标志
 
 void ov7725_dma_start(void)
@@ -135,9 +158,9 @@ void OV_dma_init(void)
 	//DMA参数配置
 	OV_dma_init_struct.DMA_CHx = DMA_CH0;    //CH0通道
 	OV_dma_init_struct.DMA_Req = PORTE_DMAREQ;       //PORTE为请求源
-	OV_dma_init_struct.DMA_MajorLoopCnt = 2+CAMERA_W*CAMERA_H/8; //主循环计数值：行采集点数，宽度
+	OV_dma_init_struct.DMA_MajorLoopCnt = 2+CAMERA_W*CAMERA_H/8; //跳过VSYN与HSYN间的16个像素
 	OV_dma_init_struct.DMA_MinorByteCnt = 1; //次循环字节计数：每次读入1字节
-	OV_dma_init_struct.DMA_SourceAddr = (uint32)&PTD->PDIR+1;        //源地址：PTD8~15  0x400FF0D1u
+	OV_dma_init_struct.DMA_SourceAddr = (uint32)&PTD->PDIR+1;//源地址：PTD8~15  0x400FF0D1u
 	OV_dma_init_struct.DMA_DestAddr = OV_binary_ADDR;      //目的地址：存放图像的数组
 	OV_dma_init_struct.DMA_DestAddrOffset = 1;       //目的地址偏移：每次读入增加1
 	OV_dma_init_struct.DMA_AutoDisableReq = TRUE;    //自动禁用请求
@@ -213,15 +236,15 @@ void OV_display(void)
 {
 	uint16 row, col;
 	Is_DispPhoto = 0;
-	LPLD_UART_PutChar(UART5, 0u); //上位机命令字
-	LPLD_UART_PutChar(UART5, 255u);
-	LPLD_UART_PutChar(UART5, 1u);
-	LPLD_UART_PutChar(UART5, 0u);
+	LPLD_UART_PutChar(UART5, 0); //上位机命令字
+	LPLD_UART_PutChar(UART5, 255);
+	LPLD_UART_PutChar(UART5, 1);
+	LPLD_UART_PutChar(UART5, 0);
 	for(row=0;row<=CAMERA_H-1;row++)
 	{
 		for(col=0;col<=CAMERA_W-1;col++)
 		{
-			LPLD_UART_PutChar(UART5, !OV_binary_data(row,col));
+			LPLD_UART_PutChar(UART5, !((char)(OV_pictures.pic1_data[row][col])));
 		}
 	}
 	LPLD_GPIO_ClearIntFlag(PORTA);//清PORTA中断标志
