@@ -9,6 +9,7 @@ void main (void)
 	//if(ic_init(&ic2_A11)==SUCCESS);
 	//adc_init(&Adc0_0P1, 1000000);
 	
+	
 	ov7725_dma_start();
 	
 	while(1)

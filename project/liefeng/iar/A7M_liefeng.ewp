@@ -105,7 +105,7 @@
         </option>
         <option>
           <name>GenStdoutInterface</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>GeneralMisraRules98</name>
@@ -742,7 +742,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>A:\freescale\A7M_liefeng\lib\iar_config_files\512KB_Pflash.icf</state>
+          <state>A:\freescale\A7M_liefeng\project\liefeng\iar\512KB_Pflash.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>

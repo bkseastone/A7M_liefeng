@@ -4,6 +4,7 @@
 UART_InitTypeDef uart5_init_struct;
 UART_InitTypeDef uart4_init_struct;
 
+#pragma optimize=size
 void uart4_bluetooth_init(void)
 {
 	uart4_init_struct.UART_Uartx = UART4; //使用UART5
@@ -18,6 +19,7 @@ void uart4_bluetooth_init(void)
 	LPLD_UART_PutCharArr(UART4, "Initial uart4 successful.\r\n", 29);
 }
 
+#pragma optimize=size
 void uart5_init(void)
 {
 	uart5_init_struct.UART_Uartx = UART5; //使用UART5

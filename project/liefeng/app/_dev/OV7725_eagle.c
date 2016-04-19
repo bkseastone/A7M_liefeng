@@ -8,8 +8,7 @@
 
 *未在陷阱内设置UI
 ****************************************/
-volatile char pic_buff[CAMERA_PAGE*(2+CAMERA_W*CAMERA_H/8)] @OV_binary_ADDR; //显式声明占用该位带段内存
-struct{
+__no_init struct{
 	volatile uint32 pic1_data[CAMERA_H][CAMERA_W];
 #if (CAMERA_PAGE == 2)
 	uint32 occupy2[16]; //跳过VSYN与HSYN间的16个像素
@@ -17,22 +16,14 @@ struct{
 #elif (CAMERA_PAGE == 3)
 	uint32 occupy3[16];
 	volatile uint32 pic3_data[CAMERA_H][CAMERA_W];
-#elif (CAMERA_PAGE == 4)
-	uint32 occupy4[16];
-	volatile uint32 pic4_data[CAMERA_H][CAMERA_W];
-#elif (CAMERA_PAGE == 5)
-	uint32 occupy5[16];
-	volatile uint32 pic5_data[CAMERA_H][CAMERA_W];
-#elif (CAMERA_PAGE == 6)
-	uint32 occupy6[16];
-	volatile uint32 pic6_data[CAMERA_H][CAMERA_W];
 #else
 	
 #endif
-} OV_pictures @OV_binary_BONDADDR(0*CAMERA_H,16); //跳过VSYN与HSYN间的16个像素
+} OV_pictures @OV_binary_BONDADDR(0, 16); //跳过VSYN与HSYN间的16个像素
 
 extern uint8 Is_DispPhoto;               //图像发送标志
 
+#pragma optimize=size
 void ov7725_dma_start(void)
 {
 	//V_Cnt=0;          //行计数
@@ -129,6 +120,7 @@ reg_s ov7725_eagle_reg[] =
 };
 
 uint8 ov7725_eagle_cfgnum = ARR_SIZE( ov7725_eagle_reg ) ; /*结构体数组成员数目*/
+#pragma optimize=size
 void ov7725_init(void)
 {
 	uint16 i = 0;
@@ -153,6 +145,7 @@ void ov7725_init(void)
 }
 
 DMA_InitTypeDef OV_dma_init_struct;
+#pragma optimize=size
 void OV_dma_init(void)
 {
 	//DMA参数配置
@@ -175,6 +168,7 @@ GPIO_InitTypeDef OV_pta_init;
 //GPIO_InitTypeDef OV_ptb_init;
 GPIO_InitTypeDef OV_pte_init;
 GPIO_InitTypeDef OV_ptd_init;
+#pragma optimize=size
 void OV_gpio_init(void)
 {
 	//OV数据口初始化：PTD8~PTD15
@@ -198,8 +192,7 @@ void OV_gpio_init(void)
 	LPLD_GPIO_Init(OV_pte_init); 
 }
 
-
-
+#pragma optimize=speed
 void OV_porta_Visr(void)
 {
 	if(LPLD_GPIO_IsPinxExt(PORTA, GPIO_Pin5))
@@ -212,6 +205,7 @@ void OV_porta_Visr(void)
 	}
 }
 
+#pragma optimize=speed
 void OV_DMA_isr(void)
 {
 	Is_DispPhoto = 1;//可以显示图像
@@ -220,6 +214,7 @@ void OV_DMA_isr(void)
 /*
  * 延时一段时间
  */
+#pragma optimize=speed
 void OV_delay()
 {
   uint16 i, n;
@@ -232,6 +227,7 @@ void OV_delay()
   }
 }
 
+#pragma optimize=speed
 void OV_display(void)
 {
 	uint16 row, col;

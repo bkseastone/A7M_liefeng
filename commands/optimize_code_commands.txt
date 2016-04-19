@@ -1,0 +1,23 @@
+#pragma optimize=speed
+
+int SmallAndUsedOften()
+
+{/* Do something here. */
+
+}
+
+#pragma optimize=size
+
+int BigAndSeldomUsed()
+
+{/* Do something here. */
+
+}
+
+#pragma optimize=none /* Selection bwtween none, low, medium, and high */
+
+int OpExampleUsed()
+
+{/* Do something here. */
+
+}

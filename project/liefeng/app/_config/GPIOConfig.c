@@ -1,6 +1,7 @@
 #include "GPIOConfig.h"
 #include "interrupt.h"
 
+#pragma optimize=size
 void init_gpio_led_on()
 {
 	GPIO_InitTypeDef gpio_init_struct;
@@ -35,6 +36,7 @@ void init_gpio_monitorC4()
 	gpio_init_struct.GPIO_PinControl = INPUT_PULL_UP|IRQC_DIS; //内部上拉|不产生中断
 	LPLD_GPIO_Init(gpio_init_struct);
 }*/
+#pragma optimize=size
 void init_gpio_monitorC4()
 {
 	// 配置 PTC4 为GPIO功能,输入,内部上拉，上升沿产生中断

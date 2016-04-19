@@ -11,6 +11,7 @@ extern uint32 Freq3;
  * 初始化FTM0的输入捕获功能
  *
  */
+#pragma optimize=size
 status ic_init(myic* ic)
 {
 	//配置FTM模块的输入捕获参数
@@ -35,6 +36,7 @@ status ic_init(myic* ic)
  * 输入捕获中断
  *
  */
+#pragma optimize=speed
 void ic2_isr(void)
 {
 	uint32 cnt;
@@ -52,6 +54,7 @@ void ic2_isr(void)
 		LPLD_FTM_ClearCHnF(FTM2, FTM_Ch0); 
 	}
 }
+#pragma optimize=speed
 void ic3_isr(void)
 {
 	uint32 cnt;

@@ -1,6 +1,7 @@
 #include "interrupt.h"
 #include "time.h"
 
+#pragma optimize=speed
 void portc4_isr(void)
 {
 	if(LPLD_GPIO_IsPinxExt(PORTC, GPIO_Pin4))
@@ -14,6 +15,7 @@ void portc4_isr(void)
 	}
 }
 
+#pragma optimize=speed
 void uart4_isr(void)
 {
 	int8 recv;
@@ -21,6 +23,7 @@ void uart4_isr(void)
 	LPLD_UART_PutChar(UART4, recv);
 }
 
+#pragma optimize=speed
 void uart5_isr(void)
 {
 	int8 recv;
@@ -28,6 +31,7 @@ void uart5_isr(void)
 	LPLD_UART_PutChar(UART5, recv);
 }
 
+#pragma optimize=speed
 void pit0_isr(void)
 {
 	PIT_InitTypeDef pit0_init_struct;
@@ -38,11 +42,13 @@ void pit0_isr(void)
 	LPLD_PIT_Deinit(pit0_init_struct);
 }
 
+#pragma optimize=speed
 void pdb_isr(void)
 {
 	printf("pdb_isr OK!!\n");
 }
 
+#pragma optimize=speed
 void adc0_isr(void)
 {
 	int16 result;
@@ -52,6 +58,7 @@ void adc0_isr(void)
 	LPLD_ADC_EnableConversion(ADC0, DAD1, 0, TRUE);
 }
 
+#pragma optimize=speed
 void adc1_isr(void)
 {
 	int16 result;
