@@ -175,7 +175,7 @@ typedef struct
 #define CAMERA_W (80u)  //图像宽度 80
 #define CAMERA_H (60u)  //图像高度 120
 #define CAMERA_PAGE (2u)  //图像张数
-#define SRAM_U_BASE						0x20000000u
+#define SRAM_U_BASE						(0x20010000u - CAMERA_PAGE*(CAMERA_H*CAMERA_W+16u)/8) //占内存0x7086B=28806B (0x20008F7A~0x20010000)
 #define OV_binary_BASE					SRAM_U_BASE
 #define OV_binary_ADDR					((uint32)((uint32 *)OV_binary_BASE))
 #define OV_pics_LineNum(Lines)			(4u*((uint32_t)Lines*CAMERA_W))
