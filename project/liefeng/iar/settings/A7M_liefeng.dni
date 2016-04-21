@@ -1,5 +1,5 @@
 [Stack]
-FillEnabled=0
+FillEnabled=1
 OverflowWarningsEnabled=1
 WarningThreshold=90
 SpWarningsEnabled=1
@@ -25,7 +25,7 @@ Stop=1
 Freq=10000000
 MultiCoreRunAll=1
 [DebugChecksum]
-Checksum=-1670580920
+Checksum=2008664625
 [CodeCoverage]
 Enabled=_ 0
 [Exceptions]

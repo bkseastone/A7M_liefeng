@@ -3,6 +3,7 @@
 #include "time.h"
 
 ADC_InitTypeDef adc_init_struct;
+#pragma optimize=size
 void adc_init(myadc *adc, uint32 PIT_PeriodUs)
 {	
 	pdb_init(adc->PDB_TriggerInputSourceSel, adc->ADC_Adcx);

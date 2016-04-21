@@ -105,7 +105,7 @@
         </option>
         <option>
           <name>GenStdoutInterface</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>GeneralMisraRules98</name>
@@ -742,7 +742,11 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
+<<<<<<< HEAD
           <state>$PROJ_DIR$\..\..\..\lib\iar_config_files\512KB_Pflash.icf</state>
+=======
+          <state>$PROJ_DIR$\..\iar\512KB_Pflash.icf</state>
+>>>>>>> 3859cf1ca6b9e7a7f5497963ec3ed9dbedd05406
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -2004,10 +2008,7 @@
         <name>$PROJ_DIR$\..\app\_dev\Capture.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\app\_dev\OV7620.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\app\_dev\OV7620.h</name>
+        <name>$PROJ_DIR$\..\app\_dev\OV7725_eagle.c</name>
       </file>
     </group>
     <file>
@@ -2244,9 +2245,6 @@
         <name>$PROJ_DIR$\..\..\..\lib\LPLD\LPLD_Drivers.h</name>
       </file>
     </group>
-  </group>
-  <group>
-    <name>Output</name>
   </group>
 </project>
 
