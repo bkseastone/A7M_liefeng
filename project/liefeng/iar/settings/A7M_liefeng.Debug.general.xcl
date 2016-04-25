@@ -1,12 +1,12 @@
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\bin\armproc.dll" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\bin\armproc.dll" 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\bin\armjlink2.dll" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\bin\armjlink2.dll" 
 
-"D:\A7M\project\liefeng\iar\Debug\Exe\A7M_liefeng.out" 
+"A:\freescale\A7M_liefeng\project\liefeng\iar\Debug\Exe\A7M_liefeng.out" 
 
---plugin "C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\bin\armbat.dll" 
+--plugin "D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\bin\armbat.dll" 
 
---device_macro "C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\config\debugger\NXP\Kxx.dmac" 
+--device_macro "D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\config\debugger\NXP\Kxx.dmac" 
 
 
 

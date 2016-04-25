@@ -742,11 +742,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-<<<<<<< HEAD
-          <state>$PROJ_DIR$\..\..\..\lib\iar_config_files\512KB_Pflash.icf</state>
-=======
           <state>$PROJ_DIR$\..\iar\512KB_Pflash.icf</state>
->>>>>>> 3859cf1ca6b9e7a7f5497963ec3ed9dbedd05406
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
