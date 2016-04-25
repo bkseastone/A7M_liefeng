@@ -1,7 +1,7 @@
 #include "UART.h"
 #include "interrupt.h"
 
-UART_InitTypeDef uart5_init_struct;
+UART_InitTypeDef uart0_init_struct;
 UART_InitTypeDef uart4_init_struct;
 
 #pragma optimize=size
@@ -20,16 +20,16 @@ void uart4_bluetooth_init(void)
 }
 
 #pragma optimize=size
-void uart5_init(void)
+void uart0_init(void)
 {
-	uart5_init_struct.UART_Uartx = UART5; //使用UART5
-	uart5_init_struct.UART_BaudRate = 115200; //设置波特率115200
-	uart5_init_struct.UART_RxPin = PTE9;  //接收引脚为PTE9
-	uart5_init_struct.UART_TxPin = PTE8;  //发送引脚为PTE8
-	uart5_init_struct.UART_RxIntEnable = TRUE;  //使能接收中断
-	uart5_init_struct.UART_RxIsr = uart5_isr;  //设置接收中断函数	
+	uart0_init_struct.UART_Uartx = UART0; //使用UART5
+	uart0_init_struct.UART_BaudRate = 115200; //设置波特率115200
+	uart0_init_struct.UART_RxPin = PTA15;  //接收引脚为PTE9
+	uart0_init_struct.UART_TxPin = PTA14;  //发送引脚为PTE8
+	uart0_init_struct.UART_RxIntEnable = TRUE;  //使能接收中断
+	uart0_init_struct.UART_RxIsr = uart0_isr;  //设置接收中断函数	
 	//初始化UART
-	LPLD_UART_Init(uart5_init_struct);
-	LPLD_UART_EnableIrq(uart5_init_struct);
-	LPLD_UART_PutCharArr(UART5, "Initial uart5 successful.\r\n", 29);
+	LPLD_UART_Init(uart0_init_struct);
+	LPLD_UART_EnableIrq(uart0_init_struct);
+	LPLD_UART_PutCharArr(UART0, "Initial uart0 successful.\r\n", 29);
 }

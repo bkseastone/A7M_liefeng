@@ -36,7 +36,7 @@ void ov7725_dma_start(void)
 	OV_delay();
 	
 	EnableInterrupts;//使能全局中断
-	enable_irq(PORTE_IRQn);//使能Pclk中断、场中断
+	enable_irq(PORTE_IRQn);//使能场中断、PCLK请求
 	enable_irq(PORTA_IRQn);
 }
 
@@ -150,10 +150,10 @@ void OV_dma_init(void)
 {
 	//DMA参数配置
 	OV_dma_init_struct.DMA_CHx = DMA_CH0;    //CH0通道
-	OV_dma_init_struct.DMA_Req = PORTE_DMAREQ;       //PORTE为请求源
+	OV_dma_init_struct.DMA_Req = PORTA_DMAREQ;       //PORTE为请求源
 	OV_dma_init_struct.DMA_MajorLoopCnt = 2+CAMERA_W*CAMERA_H/8; //跳过VSYN与HSYN间的16个像素
 	OV_dma_init_struct.DMA_MinorByteCnt = 1; //次循环字节计数：每次读入1字节
-	OV_dma_init_struct.DMA_SourceAddr = (uint32)&PTD->PDIR+1;//源地址：PTD8~15  0x400FF0D1u
+	OV_dma_init_struct.DMA_SourceAddr = (uint32)&PTD->PDIR;//源地址：PTD0~7  0x400FF0D0u
 	OV_dma_init_struct.DMA_DestAddr = OV_binary_ADDR;      //目的地址：存放图像的数组
 	OV_dma_init_struct.DMA_DestAddrOffset = 1;       //目的地址偏移：每次读入增加1
 	OV_dma_init_struct.DMA_AutoDisableReq = TRUE;    //自动禁用请求
@@ -164,43 +164,42 @@ void OV_dma_init(void)
 	LPLD_DMA_EnableIrq(OV_dma_init_struct);
 }
 
-GPIO_InitTypeDef OV_pta_init;
-//GPIO_InitTypeDef OV_ptb_init;
-GPIO_InitTypeDef OV_pte_init;
-GPIO_InitTypeDef OV_ptd_init;
+GPIO_InitTypeDef OV_pta_init; //OV PCLK信号
+GPIO_InitTypeDef OV_pte_init; //OV场信号
+GPIO_InitTypeDef OV_ptd_init; //OV数据口
 #pragma optimize=size
 void OV_gpio_init(void)
 {
-	//OV数据口初始化：PTD8~PTD15
+	//OV数据口初始化：PTD0~PTD7
 	OV_ptd_init.GPIO_PTx = PTD;
 	OV_ptd_init.GPIO_Dir = DIR_INPUT;
-	OV_ptd_init.GPIO_Pins = GPIO_Pin8_15; 
+	OV_ptd_init.GPIO_Pins = GPIO_Pin0_7; 
 	OV_ptd_init.GPIO_PinControl = IRQC_DIS | INPUT_PULL_DIS;  
 	LPLD_GPIO_Init(OV_ptd_init); 
-	//OV场信号接口初始化：PTA5-V
-	OV_pta_init.GPIO_PTx = PTA;
-	OV_pta_init.GPIO_Dir = DIR_INPUT;
-	OV_pta_init.GPIO_Pins = GPIO_Pin5;
-	OV_pta_init.GPIO_PinControl = IRQC_FA|INPUT_PULL_DOWN|INPUT_PF_EN;
-	OV_pta_init.GPIO_Isr = OV_porta_Visr;
-	LPLD_GPIO_Init(OV_pta_init); 
-	//OV PCLK信号接口初始化：PTE6-PCLK
+	//OV场信号接口初始化：PTE28-V
 	OV_pte_init.GPIO_PTx = PTE;
-	OV_pte_init.GPIO_Pins = GPIO_Pin6;
 	OV_pte_init.GPIO_Dir = DIR_INPUT;
-	OV_pte_init.GPIO_PinControl = IRQC_DMARI | INPUT_PULL_DOWN|INPUT_PF_EN; 
+	OV_pte_init.GPIO_Pins = GPIO_Pin28;
+	OV_pte_init.GPIO_PinControl = IRQC_FA|INPUT_PULL_DOWN|INPUT_PF_EN;
+	OV_pte_init.GPIO_Isr = OV_porte_Visr;
 	LPLD_GPIO_Init(OV_pte_init); 
+	//OV PCLK信号接口初始化：PTA6-PCLK
+	OV_pta_init.GPIO_PTx = PTA;
+	OV_pta_init.GPIO_Pins = GPIO_Pin6;
+	OV_pta_init.GPIO_Dir = DIR_INPUT;
+	OV_pta_init.GPIO_PinControl = IRQC_DMARI | INPUT_PULL_DOWN|INPUT_PF_EN; 
+	LPLD_GPIO_Init(OV_pta_init); 
 }
 
 #pragma optimize=speed
-void OV_porta_Visr(void)
+void OV_porte_Visr(void)
 {
-	if(LPLD_GPIO_IsPinxExt(PORTA, GPIO_Pin5))
+	if(LPLD_GPIO_IsPinxExt(PORTE, GPIO_Pin28))
 	{
 		//检测到场开始信号，加载目的地址
 		LPLD_DMA_LoadDstAddr(DMA_CH0, OV_binary_ADDR);
 		LPLD_DMA_EnableReq(DMA_CH0);
-		disable_irq(PORTA_IRQn);
+		disable_irq(PORTE_IRQn);
 		//printf("porta_Visr");
 	}
 }
@@ -243,6 +242,6 @@ void OV_display(void)
 			LPLD_UART_PutChar(UART5, !((char)(OV_pictures.pic1_data[row][col])));
 		}
 	}
-	LPLD_GPIO_ClearIntFlag(PORTA);//清PORTA中断标志
-	enable_irq(PORTA_IRQn);//使能PORTA中断
+	LPLD_GPIO_ClearIntFlag(PORTE);//清PORTA中断标志
+	enable_irq(PORTE_IRQn);//使能PORTA中断
 }

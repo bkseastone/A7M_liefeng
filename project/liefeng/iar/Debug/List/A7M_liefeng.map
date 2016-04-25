@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V7.50.3.10732/W32 for ARM                20/Apr/2016  23:30:02
+# IAR ELF Linker V7.50.3.10732/W32 for ARM                25/Apr/2016  11:48:28
 # Copyright 2007-2016 IAR Systems AB.
 #
 #    Output file  =  
@@ -481,7 +481,7 @@ OV_dma_init             0x000026f1    0x70  Code  Gb  OV7725_eagle.o [1]
 OV_dma_init_struct      0x1fff07a0    0x2c  Data  Gb  OV7725_eagle.o [1]
 OV_gpio_init            0x00002761    0x8c  Code  Gb  OV7725_eagle.o [1]
 OV_pictures             0x221f69c0  0x9640  Data  Gb  OV7725_eagle.o [1]
-OV_porta_Visr           0x000027ed    0x24  Code  Gb  OV7725_eagle.o [1]
+OV_porte_Visr           0x000027ed    0x24  Code  Gb  OV7725_eagle.o [1]
 OV_pta_init             0x1fff07cc    0x14  Data  Gb  OV7725_eagle.o [1]
 OV_ptd_init             0x1fff07f4    0x14  Data  Gb  OV7725_eagle.o [1]
 OV_pte_init             0x1fff07e0    0x14  Data  Gb  OV7725_eagle.o [1]

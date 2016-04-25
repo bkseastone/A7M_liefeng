@@ -24,11 +24,11 @@ void uart4_isr(void)
 }
 
 #pragma optimize=speed
-void uart5_isr(void)
+void uart0_isr(void)
 {
 	int8 recv;
-	recv = LPLD_UART_GetChar(UART5);
-	LPLD_UART_PutChar(UART5, recv);
+	recv = LPLD_UART_GetChar(UART0);
+	LPLD_UART_PutChar(UART0, recv);
 }
 
 #pragma optimize=speed

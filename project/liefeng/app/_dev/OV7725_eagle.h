@@ -188,7 +188,7 @@ void ov7725_dma_start(void);
 void ov7725_init();
 void OV_DMA_isr(void);
 void OV_gpio_init(void);
-void OV_porta_Visr(void);
+void OV_porte_Visr(void);
 void OV_dma_init(void);
 void OV_delay(void);
 void OV_display(void);
