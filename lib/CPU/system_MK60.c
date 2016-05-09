@@ -93,6 +93,8 @@ void SystemInit (void) {
   //TERMINAL_BAUD为UART波特率，在k60_card.h中定义
   term_port_structure.UART_Uartx = TERM_PORT;
   term_port_structure.UART_BaudRate = TERMINAL_BAUD;
+  term_port_structure.UART_RxPin = TERM_Rx;  //接收引脚为PTE25
+  term_port_structure.UART_TxPin = TERM_Tx;  //发送引脚为PTE24
   LPLD_UART_Init(term_port_structure);
   
   //打印系统调试信息

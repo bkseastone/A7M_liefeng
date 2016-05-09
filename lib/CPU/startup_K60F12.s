@@ -316,7 +316,11 @@ __vector_table_0x1c
           DCD     DefaultISR  ; 253
           DCD     DefaultISR  ; 254
           DCD     DefaultISR  ; 255
-
+		  ;FlashConfig  0x400
+		  DCD     0xFFFFFFFF
+		  DCD     0xFFFFFFFF
+		  DCD     0xFFFFFFFF
+		  DCD     0xFFFDFFFE
 
 __Vectors_End
 

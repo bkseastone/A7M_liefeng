@@ -8,7 +8,7 @@
 #include "Capture.h"
 
 // constant for initializing peripherals
-mypwm Pwm0_A4={FTM0, FTM_Ch1, PTA4};  // 舵机
+mypwm Pwm0_C1={FTM0, FTM_Ch0, PTC1};  // 舵机
 mypwm Pwm1_A9={FTM1, FTM_Ch1, PTA9};  // 电机
 mypwm Pwm1_A8={FTM1, FTM_Ch0, PTA8};
 myadc Adc0_0P1={ADC0, &adc0_isr, DAD1, TRIGGER_PIT0, PIT0};

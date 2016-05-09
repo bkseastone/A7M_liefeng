@@ -176,10 +176,10 @@ void OV_gpio_init(void)
 	OV_ptd_init.GPIO_Pins = GPIO_Pin0_7; 
 	OV_ptd_init.GPIO_PinControl = IRQC_DIS | INPUT_PULL_DIS;  
 	LPLD_GPIO_Init(OV_ptd_init); 
-	//OV场信号接口初始化：PTE28-V
+	//OV场信号接口初始化：PTE27-V
 	OV_pte_init.GPIO_PTx = PTE;
 	OV_pte_init.GPIO_Dir = DIR_INPUT;
-	OV_pte_init.GPIO_Pins = GPIO_Pin28;
+	OV_pte_init.GPIO_Pins = GPIO_Pin27;
 	OV_pte_init.GPIO_PinControl = IRQC_FA|INPUT_PULL_DOWN|INPUT_PF_EN;
 	OV_pte_init.GPIO_Isr = OV_porte_Visr;
 	LPLD_GPIO_Init(OV_pte_init); 
@@ -194,7 +194,7 @@ void OV_gpio_init(void)
 #pragma optimize=speed
 void OV_porte_Visr(void)
 {
-	if(LPLD_GPIO_IsPinxExt(PORTE, GPIO_Pin28))
+	if(LPLD_GPIO_IsPinxExt(PORTE, GPIO_Pin27))
 	{
 		//检测到场开始信号，加载目的地址
 		LPLD_DMA_LoadDstAddr(DMA_CH0, OV_binary_ADDR);
@@ -231,15 +231,15 @@ void OV_display(void)
 {
 	uint16 row, col;
 	Is_DispPhoto = 0;
-	LPLD_UART_PutChar(UART5, 0); //上位机命令字
-	LPLD_UART_PutChar(UART5, 255);
-	LPLD_UART_PutChar(UART5, 1);
-	LPLD_UART_PutChar(UART5, 0);
+	LPLD_UART_PutChar(UART4, 0); //上位机命令字
+	LPLD_UART_PutChar(UART4, 255);
+	LPLD_UART_PutChar(UART4, 1);
+	LPLD_UART_PutChar(UART4, 0);
 	for(row=0;row<=CAMERA_H-1;row++)
 	{
 		for(col=0;col<=CAMERA_W-1;col++)
 		{
-			LPLD_UART_PutChar(UART5, !((char)(OV_pictures.pic1_data[row][col])));
+			LPLD_UART_PutChar(UART4, !((char)(OV_pictures.pic1_data[row][col])));
 		}
 	}
 	LPLD_GPIO_ClearIntFlag(PORTE);//清PORTA中断标志

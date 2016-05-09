@@ -19,7 +19,7 @@
           
           
           
-        <Column0>1978</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+        <Column0>3209</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Disassembly>
         <col-names>
@@ -38,7 +38,7 @@
         <expressions>
           
           
-        <item>Freq3</item><item></item></expressions>
+        <item>Freq3</item><item/></expressions>
         <col-names>
           
           
@@ -58,7 +58,7 @@
       
       
       
-    <Wnd0>
+    <Wnd4>
         <Tabs>
           <Tab>
             <Identity>TabID-8626-22346</Identity>
@@ -74,7 +74,7 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
+      <SelectedTab>0</SelectedTab></Wnd4><Wnd5>
         <Tabs>
           <Tab>
             <Identity>TabID-19374-22349</Identity>
@@ -86,7 +86,7 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd1><Wnd2>
+      <SelectedTab>0</SelectedTab></Wnd5><Wnd6>
         <Tabs>
           <Tab>
             <Identity>TabID-30122-22352</Identity>
@@ -96,7 +96,7 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd2><Wnd3>
+      <SelectedTab>0</SelectedTab></Wnd6><Wnd7>
         <Tabs>
           <Tab>
             <Identity>TabID-13101-22467</Identity>
@@ -105,20 +105,20 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd3></Windows>
+      <SelectedTab>0</SelectedTab></Wnd7></Windows>
     <Editor>
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\A7M_liefeng.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>686</SelStart2><SelEnd2>686</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\main.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>351</SelStart2><SelEnd2>351</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\_config\UART.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>67</SelStart2><SelEnd2>67</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\lib\LPLD\HW\HW_UART.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>49</YPos2><SelStart2>1470</SelStart2><SelEnd2>1470</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\_config\interrupt.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>13</SelStart2><SelEnd2>13</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\_config\interrupt.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>128</SelStart2><SelEnd2>128</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\_config\UART.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>105</SelStart2><SelEnd2>105</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\_dev\OV7725_eagle.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>170</YPos2><SelStart2>2115</SelStart2><SelEnd2>2115</SelEnd2></Tab><ActiveTab>7</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\_dev\OV7725_eagle.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>201</YPos2><SelStart2>6799</SelStart2><SelEnd2>6807</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\lib\CPU\system_MK60.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>66</YPos2><SelStart2>3631</SelStart2><SelEnd2>3631</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\_config\UART.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>303</SelStart2><SelEnd2>428</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\k60_card.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>96</YPos2><SelStart2>3878</SelStart2><SelEnd2>3878</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\A7M_liefeng.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>675</SelStart2><SelEnd2>675</SelEnd2></Tab><ActiveTab>4</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-02A5FE90><key>iaridepm.enu1</key></Toolbar-02A5FE90></Sizes></Row0><Row1><Sizes><Toolbar-1C977798><key>debuggergui.enu1</key></Toolbar-1C977798></Sizes></Row1><Row2><Sizes><Toolbar-1C977608><key>armjlink2.enu1</key></Toolbar-1C977608></Sizes></Row2></Top><Left><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>678</Bottom><Right>2052</Right><x>-2</x><y>-2</y><xscreen>2054</xscreen><yscreen>637</yscreen><sizeHorzCX>2405152</sizeHorzCX><sizeHorzCY>936765</sizeHorzCY><sizeVertCX>2405152</sizeVertCX><sizeVertCY>1000000</sizeVertCY></Rect></Wnd1></Sizes></Row0></Left><Right><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>678</Bottom><Right>3979</Right><x>-2</x><y>-2</y><xscreen>2054</xscreen><yscreen>637</yscreen><sizeHorzCX>2405152</sizeHorzCX><sizeHorzCY>936765</sizeHorzCY><sizeVertCX>4661593</sizeVertCX><sizeVertCY>1000000</sizeVertCY></Rect></Wnd2></Sizes></Row0><Row1><Sizes><Wnd3><Rect><Top>-2</Top><Left>3977</Left><Bottom>678</Bottom><Right>7464</Right><x>3977</x><y>-2</y><xscreen>2054</xscreen><yscreen>637</yscreen><sizeHorzCX>2405152</sizeHorzCX><sizeHorzCY>936765</sizeHorzCY><sizeVertCX>4083138</sizeVertCX><sizeVertCY>1000000</sizeVertCY></Rect></Wnd3></Sizes></Row1></Right><Bottom><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>635</Bottom><Right>856</Right><x>-2</x><y>-2</y><xscreen>858</xscreen><yscreen>637</yscreen><sizeHorzCX>1004684</sizeHorzCX><sizeHorzCY>936765</sizeHorzCY><sizeVertCX>2405152</sizeVertCX><sizeVertCY>936765</sizeVertCY></Rect></Wnd0></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-028D2D20><key>iaridepm.enu1</key></Toolbar-028D2D20></Sizes></Row0><Row1><Sizes><Toolbar-06EA4FE0><key>debuggergui.enu1</key></Toolbar-06EA4FE0></Sizes></Row1><Row2><Sizes><Toolbar-06EA4E50><key>armjlink2.enu1</key></Toolbar-06EA4E50></Sizes></Row2></Top><Left><Row0><Sizes><Wnd5><Rect><Top>-2</Top><Left>-2</Left><Bottom>686</Bottom><Right>3283</Right><x>-2</x><y>-2</y><xscreen>3285</xscreen><yscreen>644</yscreen><sizeHorzCX>2404832</sizeHorzCX><sizeHorzCY>936047</sizeHorzCY><sizeVertCX>2404832</sizeVertCX><sizeVertCY>1000000</sizeVertCY></Rect></Wnd5></Sizes></Row0></Left><Right><Row0><Sizes><Wnd6><Rect><Top>-2</Top><Left>-2</Left><Bottom>686</Bottom><Right>6366</Right><x>-2</x><y>-2</y><xscreen>3285</xscreen><yscreen>644</yscreen><sizeHorzCX>2404832</sizeHorzCX><sizeHorzCY>936047</sizeHorzCY><sizeVertCX>4661786</sizeVertCX><sizeVertCY>1000000</sizeVertCY></Rect></Wnd6></Sizes></Row0><Row1><Sizes><Wnd7><Rect><Top>-2</Top><Left>6364</Left><Bottom>686</Bottom><Right>11942</Right><x>6364</x><y>-2</y><xscreen>3285</xscreen><yscreen>644</yscreen><sizeHorzCX>2404832</sizeHorzCX><sizeHorzCY>936047</sizeHorzCY><sizeVertCX>4083455</sizeVertCX><sizeVertCY>1000000</sizeVertCY></Rect></Wnd7></Sizes></Row1></Right><Bottom><Row0><Sizes><Wnd4><Rect><Top>-2</Top><Left>-2</Left><Bottom>642</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>644</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>936047</sizeHorzCY><sizeVertCX>2404832</sizeVertCX><sizeVertCY>936047</sizeVertCY></Rect></Wnd4></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Project>
 
