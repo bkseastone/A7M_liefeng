@@ -183,7 +183,7 @@
           <name>CCDefines</name>
           <state>IAR</state>
           <state>LPLD_K60</state>
-          <state>USE_K60F12</state>
+          <state>USE_K60F15</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -248,7 +248,7 @@
         </option>
         <option>
           <name>CCDebugInfo</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>IEndianMode</name>
@@ -328,6 +328,7 @@
           <state>$PROJ_DIR$\..\..\..\lib\USB\class</state>
           <state>$PROJ_DIR$\..\app\_config</state>
           <state>$PROJ_DIR$\..\app\_dev</state>
+          <state>$PROJ_DIR$\..\app\_cal</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1960,6 +1961,9 @@
       <name>cal</name>
       <file>
         <name>$PROJ_DIR$\..\app\_cal\OV_cal.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\app\_cal\PID.c</name>
       </file>
     </group>
     <group>

@@ -320,7 +320,7 @@ __vector_table_0x1c
 		  DCD     0xFFFFFFFF
 		  DCD     0xFFFFFFFF
 		  DCD     0xFFFFFFFF
-		  DCD     0xFFFDFFFE
+		  DCD     0xFFFFFDFE ;/disable EzPort operation /unsecured mode
 
 __Vectors_End
 

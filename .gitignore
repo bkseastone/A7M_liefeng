@@ -10,3 +10,5 @@
 *.pbi
 *.wsdt
 *.dep
+# My custom file
+*.tmp

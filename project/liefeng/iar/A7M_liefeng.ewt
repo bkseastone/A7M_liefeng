@@ -2101,6 +2101,9 @@
       <file>
         <name>$PROJ_DIR$\..\app\_cal\OV_cal.c</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\app\_cal\PID.c</name>
+      </file>
     </group>
     <group>
       <name>conf</name>
