@@ -10,10 +10,12 @@ typedef struct
 	FTM_Type *FTM_Ftmx;
 	FtmChnEnum_Type chn;
 	PortPinsEnum_Type pin;
+	uint32 Freq;
+	uint32 Duty;
+	uint32 Velosity;
 } mypwm;
-status ftm_pwm_init(mypwm *pwm, uint32 FTM_PwmFreq, uint32 duty);
-uint32 angle_to_period(uint32 angle);
-void delay();
+void ftm_pwm_init(mypwm *pwm);
+uint32 angle_to_period(int32 angle); //[-180,+180]
 void pit_init(PITx PIT_Pitx, uint32 PIT_PeriodUs);
 void pdb_init(uint8 PDB_TriggerInputSourceSel, ADC_Type *ADC_Adcx);
 

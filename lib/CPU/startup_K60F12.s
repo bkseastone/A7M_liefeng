@@ -339,6 +339,15 @@ __Vectors_Size 	EQU   __Vectors_End - __Vectors
 Reset_Handler
         LDR     R0, =SystemInit         ;执行系统初始化函数SystemInit()
         BLX     R0
+		;open FPU
+		LDR.W R0, =0xE000ED88
+		; Read CPACR<
+		LDR R1, [R0]
+		; Set bits 20-23 to enable CP10 and CP11 coprocessors
+		ORR R1, R1, #(0xF << 20)
+		; Write back the modified value to the CPACR
+		STR R1, [R0]
+		
         LDR     R0, =main               ;执行用户主函数main()
         BX      R0
 

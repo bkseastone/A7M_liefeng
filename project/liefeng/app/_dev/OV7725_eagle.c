@@ -51,7 +51,7 @@ reg_s ov7725_eagle_reg[] =
     {OV7725_COM7         , 0x40},
     {OV7725_HSTART       , 0x3F},
     {OV7725_HSIZE        , 0x50}, // 80
-    {OV7725_VSTRT        , 0x03},
+    {OV7725_VSTRT        , 0x03}, //设置图像水平位置  增大 则向右移 反之 向左移
     {OV7725_VSIZE        , 0x78}, // 120
     {OV7725_HREF         , 0x00},
     {OV7725_SCAL0        , 0x0A},

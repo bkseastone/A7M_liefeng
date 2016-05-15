@@ -121,6 +121,7 @@ typedef enum
 /* 
  * 包含通用功能函数
  */
+#include "stdio.h"
 #include "assert.h"
 #include "io.h"
 #include "uif.h"

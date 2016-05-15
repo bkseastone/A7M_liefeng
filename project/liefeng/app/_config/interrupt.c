@@ -15,7 +15,7 @@ void portc4_isr(void)
 	}
 }
 
-#pragma optimize=speed
+//#pragma optimize=speed
 void uart4_isr(void)
 {
 	int8 recv;
@@ -54,7 +54,7 @@ void adc0_isr(void)
 	int16 result;
 	uint8 ab = LPLD_ADC_GetSC1nCOCO(ADC0);//判断转换完成的是A组还是B组
 	result = LPLD_ADC_GetResult(ADC0, ab);//获取采样结果
-	printf("ADC0_R[%d]=%d\r\n", ab, result);//打印输出结果  
+	printf("ADC0_R[%d]=%f V.\r\n", ab, 4*result*3.3/4095);//打印输出结果  
 	LPLD_ADC_EnableConversion(ADC0, DAD1, 0, TRUE);
 }
 

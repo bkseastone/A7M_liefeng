@@ -11,33 +11,41 @@
  */
 FTM_InitTypeDef pwm_init_struct;
 #pragma optimize=size
-status ftm_pwm_init(mypwm *pwm, uint32 FTM_PwmFreq, uint32 duty)
+void ftm_pwm_init(mypwm *pwm)
 {
-	pwm_init_struct.FTM_Ftmx = pwm->FTM_Ftmx; //使能FTM1通道
+	pwm_init_struct.FTM_Ftmx = pwm->FTM_Ftmx;
 	pwm_init_struct.FTM_Mode = FTM_MODE_PWM; //使能PWM模式
-	pwm_init_struct.FTM_PwmFreq = FTM_PwmFreq; //PWM频率100Hz
-	pwm_init_struct.FTM_PwmDeadtimeCfg = DEADTIME_CH01;
-	pwm_init_struct.FTM_PwmDeadtimeDiv = DEADTIME_DIV16;
-	pwm_init_struct.FTM_PwmDeadtimeVal = 63;
-	if( LPLD_FTM_Init(pwm_init_struct) && \
-		LPLD_FTM_PWM_Enable(pwm->FTM_Ftmx, //使用FTM1
-						  pwm->chn, //使能Ch1通道
-						  duty, //初始化角度30度
-						  pwm->pin, //使用Ch1通道的PTD1引脚
-						  ALIGN_LEFT        //脉宽左对齐
-						  ) )
-	{
-		return SUCCESS;
-	}
-	else
-	{
-		return ERROR;
-	}
+	pwm_init_struct.FTM_PwmFreq = pwm->Freq; //PWM频率
+//	pwm_init_struct.FTM_PwmDeadtimeCfg = DEADTIME_CH01;
+//	pwm_init_struct.FTM_PwmDeadtimeDiv = DEADTIME_DIV16;
+//	pwm_init_struct.FTM_PwmDeadtimeVal = 63;
+	LPLD_FTM_Init(pwm_init_struct);
+	LPLD_FTM_PWM_Enable(pwm->FTM_Ftmx, //使用FTM1
+					  pwm->chn, 	//使能Ch1通道
+					  pwm->Duty, 	//初始化占空比
+					  pwm->pin, 	//使用通道的引脚
+					  ALIGN_RIGHT   //脉宽左对齐
+					  );
 }
 
-uint32 angle_to_period(uint32 angle)
+/*
+	映射	舵机	时间(ms)
+	90		0		0.5
+	0  		90		1.5
+    -90 	180		2.5
+*/
+#define S_A			20.0f
+extern mypwm* Servomotor_Init;
+uint32 angle_to_period(int32 angle)
 {
-	return angle*100;
+	angle = angle+5;
+	uint32 period = (10000 - (uint32)(10000*(0.5+(2.0f*(90.0-angle)/180))/(1000/Servomotor_Init->Freq)));
+	if(((10000.0-period)*(1000.0/Servomotor_Init->Freq)/10000.0 > (1.5+S_A/90.0))||((10000.0-period)*(1000.0/Servomotor_Init->Freq)/10000.0 < (1.5-S_A/90.0)))
+	{
+		printf("====!%d\n", angle);
+		angle=(angle>0)?(S_A):(-S_A);
+	}
+	return (10000 - (uint32)(10000*(0.5+(2.0f*(90.0-angle)/180))/(1000/Servomotor_Init->Freq)));
 }
 
 

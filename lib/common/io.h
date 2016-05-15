@@ -33,9 +33,16 @@ void out_char(int8);
 
 int32 char_present(void);
 
-int32 printf(const int8 *, ... );
+int		
+printf(const char *, ... );
 
-int32 sprintf(int8 *, const int8 *, ... );
+int
+sprintf(char *, const char *, ... );
+
+/* */
+//int32 printf(const int8 *, ... );
+//
+//int32 sprintf(int8 *, const int8 *, ... );
 
 /********************************************************************/
 

@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 #include "common.h"
+#include "interrupt.h"
 
 #define DISABLE_WDOG    1
 
@@ -88,6 +89,11 @@ void SystemInit (void) {
   g_flexbus_clock =  g_core_clock / ((uint32_t)((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV3_MASK) >> SIM_CLKDIV1_OUTDIV3_SHIFT)+ 1u);
   g_flash_clock =  g_core_clock / ((uint32_t)((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT)+ 1u);
   
+  //开启FPU访问权限
+//#if (defined(CPU_MK60DZ10))
+//  	SCB->CPACR |=((3UL << 10*2)|(3UL << 11*2));     /* set CP10 and CP11 Full Access */
+//#endif
+  
   //初始化用于打印调试信息的串口模块
   //TERM_PORT为UART通道，在k60_card.h中定义
   //TERMINAL_BAUD为UART波特率，在k60_card.h中定义
@@ -95,7 +101,10 @@ void SystemInit (void) {
   term_port_structure.UART_BaudRate = TERMINAL_BAUD;
   term_port_structure.UART_RxPin = TERM_Rx;  //接收引脚为PTE25
   term_port_structure.UART_TxPin = TERM_Tx;  //发送引脚为PTE24
+  term_port_structure.UART_RxIntEnable = TRUE;  //使能接收中断
+  term_port_structure.UART_RxIsr = uart4_isr;  //设置接收中断函数	
   LPLD_UART_Init(term_port_structure);
+  LPLD_UART_EnableIrq(term_port_structure);
   
   //打印系统调试信息
 #ifdef DEBUG_PRINT     

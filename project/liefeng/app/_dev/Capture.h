@@ -10,7 +10,7 @@ typedef struct
 	PortPinsEnum_Type pin;
 	void (*isr)();
 } myic;
-status ic_init(myic* ic);
+void ic_init(myic* ic);
 void ic2_isr(void);
 void ic3_isr(void);
 

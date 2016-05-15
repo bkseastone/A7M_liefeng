@@ -2186,9 +2186,6 @@
         <name>$PROJ_DIR$\..\..\..\lib\common\lib_def.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\lib\common\printf.c</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\..\..\lib\common\queue.c</name>
       </file>
       <file>
@@ -2382,6 +2379,15 @@
       </group>
       <file>
         <name>$PROJ_DIR$\..\..\..\lib\LPLD\LPLD_Drivers.h</name>
+      </file>
+    </group>
+    <group>
+      <name>semihosting</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\lib\semihosting\read.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\lib\semihosting\write.c</name>
       </file>
     </group>
   </group>

@@ -8,6 +8,8 @@
 
 --device_macro "D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\config\debugger\NXP\Kxx.dmac" 
 
+--flash_loader "D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\arm\config\flashloader\NXP\FlashK60Fxxx128K.board" 
+
 
 
 
