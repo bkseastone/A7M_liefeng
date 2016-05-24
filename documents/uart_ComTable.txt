@@ -1,0 +1,7 @@
+﻿A90 		停止			F1
+A91 		disarmed		F2
+A01 		armed			83
+A02 Pxxxx 	PID			84(91 92 93)
+A02 Ixxxx
+A02 Dxxxx
+A03 (+/-)xx 	舵机 			85
