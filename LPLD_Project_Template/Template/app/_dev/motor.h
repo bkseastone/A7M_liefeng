@@ -2,6 +2,7 @@
 #ifndef _MOTOR_H_
 #define _MOTOR_H_
 
+#define INLET_MAX		1800
 typedef struct
 {
 	void (*init)();
@@ -16,4 +17,5 @@ typedef struct
 } MotorTypeDef;
 void ftm_motorB_init(void);
 void ftm_motorF_init(void);
+void throttle_control(void);
 #endif

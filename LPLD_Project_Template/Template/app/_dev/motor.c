@@ -1,13 +1,15 @@
 #include "motor.h"
+#include "OV7725_eagle.h"
 
+extern OV_pictureTypeDef OV_pictures @OV_binary_BONDADDR(0, 16);
 MotorTypeDef Pwm1_A9=	{&ftm_motorF_init, FTM1, FTM_Ch1, PTA9, //后
-				5000, 1000,	//频率， 占空比
+				5000, INLET_MAX,	//频率， 占空比
 				2, 			//速度(cm/s)
 				2,			//加速度(cm/s2)
 				100			//目标速度(cm/s)
-				};  
+				};
 MotorTypeDef Pwm1_A8=	{&ftm_motorB_init, FTM1, FTM_Ch0, PTA8, //前
-				5000, 0,
+				5000, INLET_MAX,
 				3,
 				3
 				};
@@ -41,4 +43,16 @@ void ftm_motorB_init(void)
 //	pwm_init_structB.FTM_PwmDeadtimeVal = 63;
 	LPLD_FTM_Init(pwm_init_structB);
 	LPLD_FTM_PWM_Enable(MotorB->FTM_Ftmx, MotorB->chn, MotorB->Duty, MotorB->pin, ALIGN_RIGHT);
+}
+
+void throttle_control(void)
+{
+	int row;
+	for(row=CAMERA_H-1;row>=0;row--)
+	{
+		if(OV_pictures.pic1_data[row][40] ==1){
+			MotorB->Duty = (uint32)(INLET_MAX*(((float)(CAMERA_H-row))/(float)CAMERA_H));
+			return;
+		}
+	}
 }

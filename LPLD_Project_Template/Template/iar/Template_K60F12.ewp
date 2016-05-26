@@ -3117,6 +3117,12 @@
           <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_GPIO.h</name>
         </file>
         <file>
+          <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_LPTMR.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_LPTMR.h</name>
+        </file>
+        <file>
           <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_MCG.c</name>
         </file>
         <file>

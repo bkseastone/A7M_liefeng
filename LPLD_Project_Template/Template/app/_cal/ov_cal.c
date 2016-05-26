@@ -4,34 +4,72 @@
 extern OvTypeDef			*Ov7725;
 extern OV_pictureTypeDef_SRAM OV_pictures_SRAM @(OV_binary_ADDR+2);
 extern OV_pictureTypeDef OV_pictures @OV_binary_BONDADDR(0, 16);
+
+#define CNST_3		12.0f //斜率变化灵敏度
 #pragma optimize=speed
 void ov7725_cal(void)
 {
-	int tnp_deflection;
-	int tnp_location_bias;
+	float tmp_deflection;
+	float tmp_location_bias;
 	ov7725_get_border();//沿缘线寻黑边
-	ov7725_get_slope();//逐差法求斜率
-	if(!Ov7725->GOODSTATUS) return;
-	Ov7725->calparam.last_point_L = Ov7725->pic.border_pos_L[CAMERA_H-1];
-	Ov7725->calparam.last_point_R = Ov7725->pic.border_pos_R[CAMERA_H-1];
-	if((Ov7725->calparam.last_point_L)==100)
-		Ov7725->calparam.last_point_L = (int)((((int)(CAMERA_H-1-Ov7725->calparam.datum_pointY_L))/(Ov7725->calparam.border_slope_L)) + Ov7725->calparam.datum_pointX_L);
-	if((Ov7725->calparam.last_point_R)==100)
-		Ov7725->calparam.last_point_R = (int)((((int)(CAMERA_H-1-Ov7725->calparam.datum_pointY_R))/(Ov7725->calparam.border_slope_R)) + Ov7725->calparam.datum_pointX_R);
-	tnp_deflection = 40 - (((int)Ov7725->calparam.datum_pointY_L-(int)Ov7725->calparam.datum_pointY_R+ \
-				(int)(Ov7725->calparam.border_slope_R)*Ov7725->calparam.datum_pointX_R- \
-				(int)(Ov7725->calparam.border_slope_L)*Ov7725->calparam.datum_pointX_L)/ \
-				((int)(Ov7725->calparam.border_slope_R)-(int)(Ov7725->calparam.border_slope_L)));
-	Ov7725->pos.deflection = ((fabsf(Ov7725->pos.deflection-tnp_deflection))<80)?tnp_deflection:Ov7725->pos.deflection;
-	tnp_location_bias = 40 - (int)(((Ov7725->calparam.last_point_L)+(Ov7725->calparam.last_point_R))>>1) - (Ov7725->pos.deflection);
-	tnp_location_bias = (fabsf(tnp_location_bias)<=40)?tnp_location_bias:40;
-	Ov7725->pos.location_bias = ((fabsf(Ov7725->pos.location_bias-tnp_location_bias))<80)?tnp_location_bias:Ov7725->pos.location_bias;
-	//待定的二次关系
-	Ov7725->gain = 0.6;
+	ov7725_get_2slope();//逐差法求两边沿线斜率
+	//待定的二次关系(为方便调试，暂时用Servo_PID->Kp代替)
+	Ov7725->gain = 0.8;
+	tmp_location_bias = ((Ov7725->pic.border_pos_R[CAMERA_H-1]==80)?0:(80-Ov7725->pic.border_pos_R[CAMERA_H-1])) - ((Ov7725->pic.border_pos_L[CAMERA_H-1]==80)?0:Ov7725->pic.border_pos_L[CAMERA_H-1]);
+	tmp_location_bias = (fabsf(tmp_location_bias)<=40)?tmp_location_bias:40;
+	Ov7725->pos.location_bias = (int)tmp_location_bias;
+	if(!Ov7725->GOODSTATUS){
+		//求算一边斜率
+		if(Ov7725->pic.exit_L){
+			tmp_deflection = CNST_3*(((float)(Ov7725->pic.border_pos_L[Ov7725->pic.end_L])-(float)(Ov7725->pic.border_pos_L[Ov7725->pic.start_L]))/((float)(Ov7725->pic.end_L)-(float)(Ov7725->pic.start_L)));
+		}
+		else if(Ov7725->pic.exit_R){
+			tmp_deflection = CNST_3*(((float)(Ov7725->pic.border_pos_R[Ov7725->pic.start_R])-(float)(Ov7725->pic.border_pos_R[Ov7725->pic.end_R]))/((float)(Ov7725->pic.start_R)-(float)(Ov7725->pic.end_R)));
+		}
+//		if(OV_pictures_SRAM.pic1_data[CAMERA_H-1][0]!=0){
+//			tmp_deflection = (CNST_3*Ov7725->pic.exit_L*((float)(Ov7725->pic.border_pos_L[Ov7725->pic.end_L]-Ov7725->pic.border_pos_L[Ov7725->pic.start_L])/(float)(Ov7725->pic.end_L-Ov7725->pic.start_L))+ \
+//				CNST_3*Ov7725->pic.exit_R*((float)(Ov7725->pic.border_pos_R[Ov7725->pic.end_R]-Ov7725->pic.border_pos_R[Ov7725->pic.start_R])/(float)(Ov7725->pic.end_R-Ov7725->pic.start_R)));
+//		}
+//		else{
+//			tmp_deflection = (CNST_3*Ov7725->pic.exit_L*((float)(Ov7725->pic.border_pos_L[Ov7725->pic.start_L]-Ov7725->pic.border_pos_L[Ov7725->pic.end_L])/(float)(Ov7725->pic.start_L-Ov7725->pic.end_L))+ \
+//				CNST_3*Ov7725->pic.exit_R*((float)(Ov7725->pic.border_pos_R[Ov7725->pic.start_R]-Ov7725->pic.border_pos_R[Ov7725->pic.end_R])/(float)(Ov7725->pic.start_R-Ov7725->pic.end_R)));
+//		}
+		Ov7725->pos.deflection = (int)(((fabsf(Ov7725->pos.deflection-tmp_deflection))<80)?tmp_deflection:Ov7725->pos.deflection);
+		return;
+	}
+	if((OV_pictures_SRAM.pic1_data[19][4]!=0) || (OV_pictures_SRAM.pic1_data[17][4]!=0) || (OV_pictures_SRAM.pic1_data[21][4]!=0)){
+//		Ov7725->GOODSTATUS = 0;
+		Ov7725->mode = 1;
+		if(Ov7725->pic.start_L==(CAMERA_H-1)){
+			tmp_deflection = (CNST_3*(float)(Ov7725->pic.border_pos_L[Ov7725->pic.end_L]-Ov7725->pic.border_pos_L[Ov7725->pic.start_L])/(float)(Ov7725->pic.end_L-Ov7725->pic.start_L));
+		}
+		else if(Ov7725->pic.start_R==(CAMERA_H-1)){
+			tmp_deflection = CNST_3*((float)(Ov7725->pic.border_pos_R[Ov7725->pic.start_R]-Ov7725->pic.border_pos_R[Ov7725->pic.end_R])/(float)(Ov7725->pic.start_R-Ov7725->pic.end_R));
+		}
+		if((Ov7725->pic.start_L==(CAMERA_H-1))||(Ov7725->pic.start_R==(CAMERA_H-1))){
+			Ov7725->pos.deflection = (int)(((fabsf(Ov7725->pos.deflection-tmp_deflection))<80)?tmp_deflection:Ov7725->pos.deflection);
+			return;
+		}
+	}
+	else{
+		Ov7725->mode = 0;
+	}
+
+//	Ov7725->calparam.last_point_L = Ov7725->pic.border_pos_L[CAMERA_H-1];
+//	Ov7725->calparam.last_point_R = Ov7725->pic.border_pos_R[CAMERA_H-1];
+//	if((Ov7725->calparam.last_point_L)==80)
+//		Ov7725->calparam.last_point_L = (int)((((int)(CAMERA_H-1-Ov7725->calparam.datum_pointY_L))/(Ov7725->calparam.border_slope_L)) + Ov7725->calparam.datum_pointX_L);
+//	if((Ov7725->calparam.last_point_R)==80)
+//		Ov7725->calparam.last_point_R = (int)((((int)(CAMERA_H-1-Ov7725->calparam.datum_pointY_R))/(Ov7725->calparam.border_slope_R)) + Ov7725->calparam.datum_pointX_R);
+	tmp_deflection = 40 - (((float)Ov7725->calparam.datum_pointY_L-(float)Ov7725->calparam.datum_pointY_R+ \
+				(float)(Ov7725->calparam.border_slope_R)*Ov7725->calparam.datum_pointX_R- \
+				(float)(Ov7725->calparam.border_slope_L)*Ov7725->calparam.datum_pointX_L)/ \
+				((float)(Ov7725->calparam.border_slope_R)-(float)(Ov7725->calparam.border_slope_L)));
+	Ov7725->pos.deflection = (int)(((fabsf(Ov7725->pos.deflection-tmp_deflection))<80)?tmp_deflection:Ov7725->pos.deflection);
 }
 
 #pragma optimize=speed
-void ov7725_get_slope(void)
+void ov7725_get_2slope(void)
 {
 	int row;
 	char start_L_OK = 0, start_R_OK = 0, end_L_OK = 0, end_R_OK = 0;
@@ -40,52 +78,53 @@ void ov7725_get_slope(void)
 	Ov7725->pic.end_L = 0;
 	Ov7725->pic.start_R = 0;
 	Ov7725->pic.end_R = 0;
-	if(Ov7725->GOODSTATUS){
-		for(row=CAMERA_H-1;row>=0;row--)
-		{
-			if((start_L_OK==0) && (end_L_OK==0) && (row<=(CAMERA_H/2-1))){
-				start_L_OK = 1;
-				end_L_OK = 1;
-				Ov7725->pic.exit_L = 0;
-			}
-			if((start_R_OK==0) && (end_R_OK==0) && (row<=(CAMERA_H/2-1))){
-				start_R_OK = 1;
-				end_R_OK = 1;
-				Ov7725->pic.exit_R = 0;
-			}
-			if((start_L_OK==0) && ((Ov7725->pic.border_pos_L[row])!=100)){
-				Ov7725->pic.start_L = row;
-				start_L_OK = 1;
-				Ov7725->pic.exit_L = (Ov7725->pic.start_L==Ov7725->pic.end_L)?0:1;
-			}
-			if((end_L_OK==0) && ((Ov7725->pic.border_pos_L[CAMERA_H-1-row])!=100)){
-				Ov7725->pic.end_L = CAMERA_H-1-row;
-				end_L_OK = 1;
-				Ov7725->pic.exit_L = (Ov7725->pic.start_L==Ov7725->pic.end_L)?0:1;
-			}
-			if((start_R_OK==0) && ((Ov7725->pic.border_pos_R[row])!=100)){
-				Ov7725->pic.start_R = row;
-				start_R_OK = 1;
-				Ov7725->pic.exit_R = (Ov7725->pic.start_R==Ov7725->pic.end_R)?0:1;
-			}
-			if((end_R_OK==0) && ((Ov7725->pic.border_pos_R[CAMERA_H-1-row])!=100)){
-				Ov7725->pic.end_R = CAMERA_H-1-row;
-				end_R_OK = 1;
-				Ov7725->pic.exit_R = (Ov7725->pic.start_R==Ov7725->pic.end_R)?0:1;
-			}
-			if(start_L_OK&&end_L_OK&&start_R_OK&&end_R_OK)
-				break;
-		}
 
+	for(row=CAMERA_H-1;row>=0;row--)
+	{
+		if((start_L_OK==0) && (end_L_OK==0) && (row<=(CAMERA_H/2-1))){
+			start_L_OK = 1;
+			end_L_OK = 1;
+			Ov7725->pic.exit_L = 0;
+		}
+		if((start_R_OK==0) && (end_R_OK==0) && (row<=(CAMERA_H/2-1))){
+			start_R_OK = 1;
+			end_R_OK = 1;
+			Ov7725->pic.exit_R = 0;
+		}
+		if((start_L_OK==0) && ((Ov7725->pic.border_pos_L[row])!=80)){
+			Ov7725->pic.start_L = row;
+			start_L_OK = 1;
+			Ov7725->pic.exit_L = (Ov7725->pic.start_L==Ov7725->pic.end_L)?0:1;
+		}
+		if((end_L_OK==0) && ((Ov7725->pic.border_pos_L[CAMERA_H-1-row])!=80)){
+			Ov7725->pic.end_L = CAMERA_H-1-row;
+			end_L_OK = 1;
+			Ov7725->pic.exit_L = (Ov7725->pic.start_L==Ov7725->pic.end_L)?0:1;
+		}
+		if((start_R_OK==0) && ((Ov7725->pic.border_pos_R[row])!=80)){
+			Ov7725->pic.start_R = row;
+			start_R_OK = 1;
+			Ov7725->pic.exit_R = (Ov7725->pic.start_R==Ov7725->pic.end_R)?0:1;
+		}
+		if((end_R_OK==0) && ((Ov7725->pic.border_pos_R[CAMERA_H-1-row])!=80)){
+			Ov7725->pic.end_R = CAMERA_H-1-row;
+			end_R_OK = 1;
+			Ov7725->pic.exit_R = (Ov7725->pic.start_R==Ov7725->pic.end_R)?0:1;
+		}
+		if(start_L_OK&&end_L_OK&&start_R_OK&&end_R_OK)
+			break;
 	}
 	if((Ov7725->pic.exit_L==0) || (Ov7725->pic.exit_R==0)){
 		Ov7725->GOODSTATUS = 0;
-		Ov7725->mode = Ov7725->pic.exit_L || Ov7725->pic.exit_R;
+		Ov7725->mode = Ov7725->pic.exit_L ^ Ov7725->pic.exit_R;
 		return;
+	}
+	else{
+		Ov7725->GOODSTATUS = 1;
 	}
 	for(row=Ov7725->pic.start_L;row>=((Ov7725->pic.start_L+Ov7725->pic.end_L)>>1);row--)
 	{
-		if(((Ov7725->pic.border_pos_L[Ov7725->pic.start_L-row+Ov7725->pic.end_L])!=100)&&((Ov7725->pic.border_pos_L[row])!=100)){
+		if(((Ov7725->pic.border_pos_L[Ov7725->pic.start_L-row+Ov7725->pic.end_L])!=80)&&((Ov7725->pic.border_pos_L[row])!=80)){
 			Ov7725->calparam.datum_pointY_L = row;
 			Ov7725->calparam.datum_pointX_L = Ov7725->pic.border_pos_L[row];
 			x_sum_L += Ov7725->pic.border_pos_L[Ov7725->pic.start_L-row+Ov7725->pic.end_L]-Ov7725->pic.border_pos_L[row];
@@ -94,8 +133,8 @@ void ov7725_get_slope(void)
 	}
 	for(row=Ov7725->pic.start_R;row>=((Ov7725->pic.end_R+Ov7725->pic.start_R)>>1);row--)
 	{
-		if((Ov7725->pic.border_pos_R[Ov7725->pic.start_R-row+Ov7725->pic.end_R])!=100){
-			if((Ov7725->pic.border_pos_R[row])!=100){
+		if((Ov7725->pic.border_pos_R[Ov7725->pic.start_R-row+Ov7725->pic.end_R])!=80){
+			if((Ov7725->pic.border_pos_R[row])!=80){
 				Ov7725->calparam.datum_pointY_R = row;
 				Ov7725->calparam.datum_pointX_R = Ov7725->pic.border_pos_R[row];
 				x_sum_R += Ov7725->pic.border_pos_R[Ov7725->pic.start_R-row+Ov7725->pic.end_R]-Ov7725->pic.border_pos_R[row];
@@ -144,7 +183,7 @@ void ov7725_get_border(void)
 			}
 		}
 		else{
-			Ov7725->pic.border_pos_L[row] = 100; //100意味木有
+			Ov7725->pic.border_pos_L[row] = 80; //80意味木有
 		}
 		if(Is_R_OK){
 			for(_i=0;_i<=7;_i++)
@@ -156,17 +195,25 @@ void ov7725_get_border(void)
 			}
 		}
 		else{
-			Ov7725->pic.border_pos_R[row] = 100;
+			Ov7725->pic.border_pos_R[row] = 80;
 		}
 		//若第一行39列和40列都为黑边的处理方案
-//		if((Ov7725->pic.border_pos_L[row]+1)==(Ov7725->pic.border_pos_R[row])){
-//			Ov7725->GOODSTATUS = 0;
-//			Ov7725->pic.exit_L = OV_pictures.pic1_data[row][];
-//		}
-		if((((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) != 100)&&    \
-			((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) != 100))  || \
-			(((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) == 100)&&   \
-			((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) == 100)))
+		if((Ov7725->pic.border_pos_L[row]+1)==(Ov7725->pic.border_pos_R[row])){
+			Ov7725->GOODSTATUS = 0;
+			Ov7725->mode = 1;
+			Ov7725->pic.exit_L = OV_pictures.pic1_data[row][0];
+			Ov7725->pic.exit_R = OV_pictures.pic1_data[row][CAMERA_W-1];
+			Ov7725->pic.border_pos_L[row] = (Ov7725->pic.exit_L)?Ov7725->pic.border_pos_R[row]:80;
+			Ov7725->pic.border_pos_R[row] = (Ov7725->pic.exit_R)?Ov7725->pic.border_pos_R[row]:80;
+			if(Ov7725->pic.exit_L != Ov7725->pic.exit_R){
+				break;
+			}
+		}
+
+		if((((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) != 80)&&    \
+			((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) != 80))  || \
+			(((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) == 80)&&   \
+			((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) == 80)))
 		{
 			Ov7725->pic.escape_position--;
 		}
@@ -178,8 +225,8 @@ void ov7725_get_border(void)
 	Is_R_OK = 0;
 	Is_L_OK = 0;
 	_i = 1;
-	if(((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) == 100) && \
-		((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) != 100))
+	if(((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) == 80) && \
+		((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) != 80))
 	{
 		for(row=Ov7725->pic.escape_position-1;row>=0;row--)
 		{
@@ -235,35 +282,38 @@ void ov7725_get_border(void)
 					row++;
 				}
 				else{
-					Ov7725->pic.border_pos_R[row] = 100;
+					Ov7725->pic.border_pos_R[row] = 80;
 					Is_R_OK = 1;
 				}
 			}
 			else{
-				Ov7725->pic.border_pos_R[row] = 100;
+				Ov7725->pic.border_pos_R[row] = 80;
 			}
 		}
-		for(row=Ov7725->pic.escape_position-1;row>=0;row--)
-		{
-			for(col=(Ov7725->pic.border_pos_R[row])-CNST_1;col>=0;col--)
+		if(Ov7725->GOODSTATUS){
+			for(row=Ov7725->pic.escape_position-1;row>=0;row--)
 			{
-				if(col != (100-CNST_1)){
-					if((OV_pictures.pic1_data[row][col])>0){
-						Ov7725->pic.border_pos_L[row] = col;
-						break;
-					}
-					else if(col == 0){
-						Ov7725->pic.border_pos_L[row] = 100;
+				if((Ov7725->pic.border_pos_R[row]+CNST_1<80)&&((Ov7725->pic.border_pos_R[29])<80)){
+					for(col=(Ov7725->pic.border_pos_R[row])-CNST_1;col>=0;col--)
+					{
+						if((OV_pictures.pic1_data[row][col])>0){
+							Ov7725->pic.border_pos_L[row] = col;
+							break;
+						}
+						else if(col == 0){
+							Ov7725->pic.border_pos_L[row] = 80;
+						}
 					}
 				}
 				else{
-					Ov7725->pic.border_pos_L[row] = 100;
+					Ov7725->pic.border_pos_L[row] = 80;
 				}
 			}
+
 		}
 	}
-	else if(((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) == 100) && \
-			((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) != 100))
+	else if(((Ov7725->pic.border_pos_R[Ov7725->pic.escape_position]) == 80) && \
+			((Ov7725->pic.border_pos_L[Ov7725->pic.escape_position]) != 80))
 	{
 		for(row=Ov7725->pic.escape_position-1;row>=0;row--)
 		{
@@ -319,29 +369,31 @@ void ov7725_get_border(void)
 					row++;
 				}
 				else{
-					Ov7725->pic.border_pos_L[row] = 100;
+					Ov7725->pic.border_pos_L[row] = 80;
 					Is_L_OK = 1;
 				}
 			}
 			else{
-				Ov7725->pic.border_pos_L[row] = 100;
+				Ov7725->pic.border_pos_L[row] = 80;
 			}
 		}
-		for(row=Ov7725->pic.escape_position-1;row>=0;row--)
-		{
-			for(col=(Ov7725->pic.border_pos_L[row])+CNST_1;col<=79;col++)
+		if(Ov7725->GOODSTATUS){
+			for(row=Ov7725->pic.escape_position-1;row>=0;row--)
 			{
-				if(col != (100+CNST_1)){
-					if((OV_pictures.pic1_data[row][col])>0){
-						Ov7725->pic.border_pos_R[row] = col;
-						break;
-					}
-					else if(col == 79){
-						Ov7725->pic.border_pos_R[row] = 100;
+				if((Ov7725->pic.border_pos_L[row]+CNST_1<80)&&((Ov7725->pic.border_pos_L[29])<80)){
+					for(col=(Ov7725->pic.border_pos_L[row])+CNST_1;col<=79;col++)
+					{
+						if((OV_pictures.pic1_data[row][col])>0){
+							Ov7725->pic.border_pos_R[row] = col;
+							break;
+						}
+						else if(col == 79){
+							Ov7725->pic.border_pos_R[row] = 80;
+						}
 					}
 				}
 				else{
-					Ov7725->pic.border_pos_R[row] = 100;
+					Ov7725->pic.border_pos_R[row] = 80;
 				}
 			}
 		}

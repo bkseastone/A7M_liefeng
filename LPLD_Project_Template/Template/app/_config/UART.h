@@ -14,10 +14,11 @@ typedef struct
 		uint32	PID_P;
 		uint32	PID_I;
 		uint32	PID_D;
+		char	STOP;
 	} Command;
 } BluetoothTypeDef;
 void uart4_bluetooth_init(void);
-void Bluetooth_DMA_isr(void);
 void BluetoothStart(void);
+void uart4_isr(void);
 //void uart0_init(void);
 #endif

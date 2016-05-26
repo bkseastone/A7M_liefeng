@@ -1,7 +1,7 @@
 #include "PID.h"
 
-PIDTypeDef Motor_PID_struct = {PID_KP, PID_KI, PID_KD, 
-						PID_NOWE, PID_LASTE, PID_PASTE, 
+PIDTypeDef Motor_PID_struct = {PID_KP, PID_KI, PID_KD,
+						PID_NOWE, PID_LASTE, PID_PASTE,
 						PID_OUT}; // 电机PID
 PIDTypeDef		*Motor_PID = &Motor_PID_struct;
 int32 PID_cal(PIDTypeDef* PID)
@@ -11,3 +11,4 @@ int32 PID_cal(PIDTypeDef* PID)
 	PID->laste = PID->nowe;
 	return PID->out;
 }
+

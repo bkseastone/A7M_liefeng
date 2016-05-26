@@ -3,7 +3,7 @@
 #include "DEV_SCCB.h"
 //#include "arm_math.h"
 //#include "math.h"
-#define   CAMERA_CNST (0xFF)	//对比度
+#define   CAMERA_CNST (0x32)	//对比度
 OV_pictureTypeDef OV_pictures @OV_binary_BONDADDR(0, 16) = {0}; //原始数据图像
 OV_pictureTypeDef_SRAM OV_pictures_SRAM @(OV_binary_ADDR+2) = {0};	//跳过VSYN与HSYN间的16个像素
 OvTypeDef Ov7725_struct={&ov7725_dma_start, &OV_display, &ov7725_cal, &ov7725_restart,
@@ -207,8 +207,6 @@ void OV_porte_Visr(void)
 #pragma optimize=speed
 void OV_DMA_isr(void)
 {
-	Ov7725->GOODSTATUS = 1;
-	Ov7725->mode = 0;
 	Ov7725->Is_DispPhoto = 1;
 }
 

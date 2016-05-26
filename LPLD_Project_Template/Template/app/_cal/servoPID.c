@@ -3,7 +3,7 @@
 
 extern SystemTypeDef	*Sys;
 ServoPIDTypeDef ServoMotor_PID_struct = { .cal=&Servo_PID_cal,
-											.Kp=0.20,	.Ti=0.00,	.Td=0.00,
+											.Kp=0.033,	.Ti=0.80,	.Td=0.00,
 											.nowe=0,	.laste=0,	.paste=0,
 											.dout=0,	.out=0}; // 舵机PID
 ServoPIDTypeDef			*Servo_PID = &ServoMotor_PID_struct;
