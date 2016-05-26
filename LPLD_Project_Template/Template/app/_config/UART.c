@@ -7,7 +7,8 @@ BluetoothTypeDef Bluetooth_struct = {&uart4_bluetooth_init, &BluetoothStart,
 									0,  //源地址
 									0,	//FIFO传输完成标志位
 									{0,	//command table
-									0, 0, 0 //PID
+									0, 0, 0, //PID
+									0
 									}
 									};
 BluetoothTypeDef *Bluetooth = &Bluetooth_struct;

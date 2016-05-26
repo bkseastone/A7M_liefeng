@@ -38,7 +38,10 @@ void pit3_isr(void)
 }
 void pit3_disinit(void)
 {
-	Sys->timer.runtime = (int)(((float)((PIT->CHANNEL[Sys->timer.PIT_Pitx].LDVAL)-(PIT->CHANNEL[Sys->timer.PIT_Pitx].CVAL)+1)/g_bus_clock)*1000000.0f);
+	uint32 now_cnt, whole_cnt;
+	now_cnt = PIT->CHANNEL[Sys->timer.PIT_Pitx].CVAL;
+	whole_cnt = PIT->CHANNEL[Sys->timer.PIT_Pitx].LDVAL;
+	Sys->timer.runtime = (int)(((float)((whole_cnt)-(now_cnt)+1)/g_bus_clock)*1000000.0f);
 	LPLD_PIT_Deinit(pit_init_struct3);
 }
 /*

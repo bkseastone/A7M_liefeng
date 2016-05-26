@@ -26,7 +26,7 @@ void ftm_pwmS_init(void)
 	0  		90		1.5
     -90 	180		2.5
 */
-#define S_T			26.0f // security-threhold (+/- 度)
+#define S_T			28.0f // security-threhold (+/- 度)
 uint32 angle_to_period(int32 angle)
 {
 	angle = angle+5; // bias

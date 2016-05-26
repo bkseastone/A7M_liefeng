@@ -5,19 +5,36 @@ extern OvTypeDef			*Ov7725;
 extern OV_pictureTypeDef_SRAM OV_pictures_SRAM @(OV_binary_ADDR+2);
 extern OV_pictureTypeDef OV_pictures @OV_binary_BONDADDR(0, 16);
 
-#define CNST_3		12.0f //斜率变化灵敏度
+#define CNST_3		12.0f //斜率变化灵敏度(只能看到一边时)
+#define CNST_4		6.0f //斜率变化灵敏度(两边都能看到时)
 #pragma optimize=speed
 void ov7725_cal(void)
 {
 	float tmp_deflection;
-	float tmp_location_bias;
+	int tmp_location_bias;
 	ov7725_get_border();//沿缘线寻黑边
 	ov7725_get_2slope();//逐差法求两边沿线斜率
 	//待定的二次关系(为方便调试，暂时用Servo_PID->Kp代替)
 	Ov7725->gain = 0.8;
-	tmp_location_bias = ((Ov7725->pic.border_pos_R[CAMERA_H-1]==80)?0:(80-Ov7725->pic.border_pos_R[CAMERA_H-1])) - ((Ov7725->pic.border_pos_L[CAMERA_H-1]==80)?0:Ov7725->pic.border_pos_L[CAMERA_H-1]);
+//	tmp_location_bias = ((Ov7725->pic.border_pos_R[CAMERA_H-1]==80)?0:(80-Ov7725->pic.border_pos_R[CAMERA_H-1])) - ((Ov7725->pic.border_pos_L[CAMERA_H-1]==80)?0:Ov7725->pic.border_pos_L[CAMERA_H-1]);
+	if(Ov7725->pic.border_pos_R[CAMERA_H-1]==80){
+		if(Ov7725->pic.border_pos_L[CAMERA_H-1]==80){
+			tmp_location_bias = 0;
+		}
+		else{
+			tmp_location_bias = 0 - Ov7725->pic.border_pos_L[CAMERA_H-1];
+		}
+	}
+	else{
+		if(Ov7725->pic.border_pos_L[CAMERA_H-1]==80){
+			tmp_location_bias = 80-Ov7725->pic.border_pos_R[CAMERA_H-1];
+		}
+		else{
+			tmp_location_bias = 80-Ov7725->pic.border_pos_R[CAMERA_H-1] - Ov7725->pic.border_pos_L[CAMERA_H-1];
+		}
+	}
 	tmp_location_bias = (fabsf(tmp_location_bias)<=40)?tmp_location_bias:40;
-	Ov7725->pos.location_bias = (int)tmp_location_bias;
+	Ov7725->pos.location_bias = tmp_location_bias;
 	if(!Ov7725->GOODSTATUS){
 		//求算一边斜率
 		if(Ov7725->pic.exit_L){
@@ -26,25 +43,19 @@ void ov7725_cal(void)
 		else if(Ov7725->pic.exit_R){
 			tmp_deflection = CNST_3*(((float)(Ov7725->pic.border_pos_R[Ov7725->pic.start_R])-(float)(Ov7725->pic.border_pos_R[Ov7725->pic.end_R]))/((float)(Ov7725->pic.start_R)-(float)(Ov7725->pic.end_R)));
 		}
-//		if(OV_pictures_SRAM.pic1_data[CAMERA_H-1][0]!=0){
-//			tmp_deflection = (CNST_3*Ov7725->pic.exit_L*((float)(Ov7725->pic.border_pos_L[Ov7725->pic.end_L]-Ov7725->pic.border_pos_L[Ov7725->pic.start_L])/(float)(Ov7725->pic.end_L-Ov7725->pic.start_L))+ \
-//				CNST_3*Ov7725->pic.exit_R*((float)(Ov7725->pic.border_pos_R[Ov7725->pic.end_R]-Ov7725->pic.border_pos_R[Ov7725->pic.start_R])/(float)(Ov7725->pic.end_R-Ov7725->pic.start_R)));
-//		}
-//		else{
-//			tmp_deflection = (CNST_3*Ov7725->pic.exit_L*((float)(Ov7725->pic.border_pos_L[Ov7725->pic.start_L]-Ov7725->pic.border_pos_L[Ov7725->pic.end_L])/(float)(Ov7725->pic.start_L-Ov7725->pic.end_L))+ \
-//				CNST_3*Ov7725->pic.exit_R*((float)(Ov7725->pic.border_pos_R[Ov7725->pic.start_R]-Ov7725->pic.border_pos_R[Ov7725->pic.end_R])/(float)(Ov7725->pic.start_R-Ov7725->pic.end_R)));
-//		}
-		Ov7725->pos.deflection = (int)(((fabsf(Ov7725->pos.deflection-tmp_deflection))<80)?tmp_deflection:Ov7725->pos.deflection);
-		return;
+		if((Ov7725->pic.exit_L) || (Ov7725->pic.exit_R)){
+			Ov7725->pos.deflection = (int)(((fabsf(Ov7725->pos.deflection-tmp_deflection))<80)?tmp_deflection:Ov7725->pos.deflection);
+			return;
+		}
 	}
 	if((OV_pictures_SRAM.pic1_data[19][4]!=0) || (OV_pictures_SRAM.pic1_data[17][4]!=0) || (OV_pictures_SRAM.pic1_data[21][4]!=0)){
-//		Ov7725->GOODSTATUS = 0;
+		//求算靠近的一边的斜率(用于弥补两边线拟合直线求交点误差大的情况)
 		Ov7725->mode = 1;
 		if(Ov7725->pic.start_L==(CAMERA_H-1)){
-			tmp_deflection = (CNST_3*(float)(Ov7725->pic.border_pos_L[Ov7725->pic.end_L]-Ov7725->pic.border_pos_L[Ov7725->pic.start_L])/(float)(Ov7725->pic.end_L-Ov7725->pic.start_L));
+			tmp_deflection = (CNST_4*(float)(Ov7725->pic.border_pos_L[Ov7725->pic.end_L]-Ov7725->pic.border_pos_L[Ov7725->pic.start_L])/(float)(Ov7725->pic.end_L-Ov7725->pic.start_L));
 		}
 		else if(Ov7725->pic.start_R==(CAMERA_H-1)){
-			tmp_deflection = CNST_3*((float)(Ov7725->pic.border_pos_R[Ov7725->pic.start_R]-Ov7725->pic.border_pos_R[Ov7725->pic.end_R])/(float)(Ov7725->pic.start_R-Ov7725->pic.end_R));
+			tmp_deflection = CNST_4*((float)(Ov7725->pic.border_pos_R[Ov7725->pic.start_R]-Ov7725->pic.border_pos_R[Ov7725->pic.end_R])/(float)(Ov7725->pic.start_R-Ov7725->pic.end_R));
 		}
 		if((Ov7725->pic.start_L==(CAMERA_H-1))||(Ov7725->pic.start_R==(CAMERA_H-1))){
 			Ov7725->pos.deflection = (int)(((fabsf(Ov7725->pos.deflection-tmp_deflection))<80)?tmp_deflection:Ov7725->pos.deflection);
@@ -231,8 +242,14 @@ void ov7725_get_border(void)
 		for(row=Ov7725->pic.escape_position-1;row>=0;row--)
 		{
 			lie_R = Ov7725->pic.border_pos_R[row+1];
-			lie_R = ((lie_R+_i)>=CAMERA_W)?(CAMERA_W-1-_i):lie_R;
-			lie_R = ((lie_R-_i)<0)?(0-_i):lie_R;
+			if((lie_R+_i)>=CAMERA_W){
+				lie_R = CAMERA_W-1-_i;
+				Is_R_OK = 1;
+			}
+			else if((lie_R-_i)<0){
+				lie_R = 0-_i;
+				Is_R_OK = 1;
+			}
 			if(_i>=HorizonShiftMAX){
 				Is_R_OK = 1;
 			}

@@ -50,8 +50,8 @@ void throttle_control(void)
 	int row;
 	for(row=CAMERA_H-1;row>=0;row--)
 	{
-		if(OV_pictures.pic1_data[row][40] ==1){
-			MotorB->Duty = (uint32)(INLET_MAX*(((float)(CAMERA_H-row))/(float)CAMERA_H));
+		if(OV_pictures.pic1_data[row][40] > 0){
+			MotorB->Duty = (uint32)(INLET_MAX*((float)(CAMERA_H-row)/(float)CAMERA_H));
 			return;
 		}
 	}
