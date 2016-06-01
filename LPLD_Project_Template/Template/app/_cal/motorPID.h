@@ -1,5 +1,5 @@
-#ifndef _PID_H_
-#define _PID_H_
+#ifndef _motorPID_H_
+#define _motorPID_H_
 	#include "common.h"
 	#define PID_KP				0.2
 	#define PID_KI				0

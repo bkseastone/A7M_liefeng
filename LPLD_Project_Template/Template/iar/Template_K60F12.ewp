@@ -2938,10 +2938,10 @@
         <name>$PROJ_DIR$\..\app\_cal\ov_cal.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\app\_cal\PID.c</name>
+        <name>$PROJ_DIR$\..\app\_cal\rectify.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\app\_cal\PID.h</name>
+        <name>$PROJ_DIR$\..\app\_cal\rectify.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\app\_cal\servoPID.c</name>
@@ -3073,10 +3073,16 @@
     <group>
       <name>CPU</name>
       <file>
+        <name>$PROJ_DIR$\..\..\..\lib\CPU\MK60F15.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\..\lib\CPU\startup_K60F12.s</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\lib\CPU\system_MK60.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\lib\CPU\system_MK60F15.h</name>
       </file>
     </group>
     <group>
@@ -3127,6 +3133,12 @@
         </file>
         <file>
           <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_MCG.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_PDB.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_PDB.h</name>
         </file>
         <file>
           <name>$PROJ_DIR$\..\..\..\lib\LPLD\HW\HW_PIT.c</name>

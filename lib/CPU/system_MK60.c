@@ -172,6 +172,7 @@ void HardFault_Handler(void)
 {
 #ifdef DEBUG_PRINT
    printf("\r\n****内核发生硬件错误*****\r\n");
+   LPLD_LPTMR_DelayMs(300);
 #endif
    return;
 }

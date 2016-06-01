@@ -279,7 +279,7 @@ uint8 LPLD_FTM_PWM_ChangeDuty(FTM_Type *ftmx, FtmChnEnum_Type chn, uint32 duty)
   vuint32 mod;
   
   //参数检查
-  ASSERT( duty <= 10000 );                  //判断占空比
+//  ASSERT( duty <= 10000 );                  //判断占空比
     
   //如果是右对齐，100%-占空比
   if(ftmx->CONTROLS[chn].CnSC & FTM_CnSC_ELSA_MASK)

@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" --backend -f "A:\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\A7M神龙摆尾+初步图形变换+曲率+两边扫黑线+直线待加斜率\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" --backend -f "A:\A7M神龙摆尾+初步图形变换+曲率+两边扫黑线+直线待加斜率\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" "--debug_file=%~1" --backend -f "A:\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\A7M神龙摆尾+初步图形变换+曲率+两边扫黑线+直线待加斜率\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" "--debug_file=%~1" --backend -f "A:\A7M神龙摆尾+初步图形变换+曲率+两边扫黑线+直线待加斜率\A7M_liefeng\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
 
 @echo off 
 :end

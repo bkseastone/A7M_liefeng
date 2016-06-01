@@ -1,4 +1,4 @@
-#include "PID.h"
+#include "motorPID.h"
 
 PIDTypeDef Motor_PID_struct = {PID_KP, PID_KI, PID_KD,
 						PID_NOWE, PID_LASTE, PID_PASTE,

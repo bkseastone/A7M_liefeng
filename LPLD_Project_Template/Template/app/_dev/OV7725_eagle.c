@@ -3,7 +3,7 @@
 #include "DEV_SCCB.h"
 //#include "arm_math.h"
 //#include "math.h"
-#define   CAMERA_CNST (0x32)	//对比度
+#define   CAMERA_CNST (50)	//对比度
 OV_pictureTypeDef OV_pictures @OV_binary_BONDADDR(0, 16) = {0}; //原始数据图像
 OV_pictureTypeDef_SRAM OV_pictures_SRAM @(OV_binary_ADDR+2) = {0};	//跳过VSYN与HSYN间的16个像素
 OvTypeDef Ov7725_struct={&ov7725_dma_start, &OV_display, &ov7725_cal, &ov7725_restart,
@@ -12,6 +12,8 @@ OvTypeDef Ov7725_struct={&ov7725_dma_start, &OV_display, &ov7725_cal, &ov7725_re
 					0,
 					1,
 					0.8,
+					0,
+                    0,
 					{0},
 					{0},
 					{0}
@@ -50,7 +52,7 @@ reg_s ov7725_eagle_reg[] =
     {OV7725_CLKRC        , 0x00}, //internal clock pre-scalar
     {OV7725_COM2         , 0x03}, //IoL/IoH
     {OV7725_COM3         , 0xD0},
-    {OV7725_COM7         , 0x40},
+    {OV7725_COM7         , 0x40}, //0x40
     {OV7725_HSTART       , 0x3F},
     {OV7725_HSIZE        , 0x50}, // 80
     {OV7725_VSTRT        , 0x03}, //设置图像水平位置  增大 则向右移 反之 向左移

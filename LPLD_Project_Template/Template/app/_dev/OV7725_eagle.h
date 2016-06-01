@@ -220,12 +220,14 @@ typedef struct
 	char	mode;
 	char	GOODSTATUS;
 	float	gain;
+	char	LOCK;
+        int16   distance;
 	//边缘线搜索得的原始数据
 	struct {
 		char	mid[CAMERA_H];			//中心线索引
 		char	border_pos_L[CAMERA_H];	//左侧边缘线
 		char	border_pos_R[CAMERA_H];
-		char 	escape_position;
+		int 	escape_position;
 		char	start_L;				//图片内的左侧边缘线起点(纵坐标)
 		char	start_R;
 		char	end_L;

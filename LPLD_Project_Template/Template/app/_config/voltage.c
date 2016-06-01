@@ -8,7 +8,7 @@ myadc Adc0_0P1={&adc0_0P1_init, ADC0, &adc0_isr, DAD1, TRIGGER_PIT0, PIT0, \
 				};
 */
 myadc*	Battery = &Adc0_0P1;
-
+GPIO_InitTypeDef gpio_init_struct9;
 ADC_InitTypeDef adc_init_struct1;
 #pragma optimize=size
 void adc0_0P1_init(void)
@@ -33,7 +33,12 @@ void adc0_0P1_init(void)
 	LPLD_ADC_EnableIrq(adc_init_struct1);	//使能ADC0中断
 	
 	Battery_pit_init();
-	
+	gpio_init_struct9.GPIO_PTx = PTA;
+	gpio_init_struct9.GPIO_Pins = GPIO_Pin25;
+	gpio_init_struct9.GPIO_Dir = DIR_OUTPUT;
+//	gpio_init_struct9.GPIO_Output = OUTPUT_L;
+	gpio_init_struct9.GPIO_PinControl = IRQC_DIS;
+	LPLD_GPIO_Init(gpio_init_struct9);
 #if defined(DEBUG_PRINT)
 	printf("Battery OK!\n");
 #endif
@@ -45,7 +50,7 @@ void Battery_pdb_init(void)
 {
 	pdb_init_struct1.PDB_CounterPeriodUs = 10;   //PDB计数器周期设置
 	pdb_init_struct1.PDB_LoadModeSel = LOADMODE_0; //加载模式设置
-	pdb_init_struct1.PDB_DelayS = 2;    //中断延时时间2秒
+	pdb_init_struct1.PDB_DelayS = 10;    //中断延时时间2秒
 	pdb_init_struct1.PDB_ContinuousModeEnable = FALSE;     //禁用连续工作模式
 	pdb_init_struct1.PDB_TriggerInputSourceSel = Battery->PDB_TriggerInputSourceSel;     //配置触发源为PIT0
 	LPLD_PDB_Init(pdb_init_struct1);
@@ -67,7 +72,13 @@ void adc0_isr(void)
 	//uint8 ab = LPLD_ADC_GetSC1nCOCO(ADC0);//判断转换完成的是A组还是B组
 	Battery->Vol = (uint16)(1000*4*LPLD_ADC_GetResult(ADC0, 0)*3.3/4095);//获取采样结果
 #if defined(DEBUG_PRINT)
-	printf("ADC0_R[A]=%d mV.\n", Battery->Vol);
+//	printf("ADC0_R[A]=%d mV.\n", Battery->Vol);
+//        if(Battery->Vol<=6800){
+//          PTA25_O = 1;
+//        }
+//        else{
+//          PTA25_O = 0;
+//        }
 #endif
 	LPLD_ADC_EnableConversion(ADC0, DAD1, 0, TRUE);
 }
