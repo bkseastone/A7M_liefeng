@@ -1,0 +1,14 @@
+# IAR project junk file
+*.bin
+*.out
+*.lst
+# *.map
+*.browse
+*.cout
+*.o
+*.pbd
+*.pbi
+*.wsdt
+*.dep
+# My custom file
+*.tmp
