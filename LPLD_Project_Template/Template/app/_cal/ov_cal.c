@@ -160,7 +160,13 @@ void ov7725_cal(void)
 		Ov7725->LOCK = 0;
 		return;
 	}
-	if((Ov7725->mode == 0)||(Ov7725->mode ==2)){
+	//十字
+	if(Ov7725->mode ==2){
+		Ov7725->LOCK = 0;
+		return;
+	}
+	//直道
+	if(Ov7725->mode == 0){
 		//斜率
 		if((Ov7725->pic.start_R - Ov7725->pic.end_R)>(Ov7725->pic.start_L - Ov7725->pic.end_L)){
 			tmp_deflection = (((float)(RectifyX[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]])- \
@@ -181,6 +187,7 @@ void ov7725_cal(void)
 		Ov7725->LOCK = 0;
 		return;
 	}
+	//弯道
 	if(Ov7725->mode == 1){
 		Weizhi_PID->Kd = ((float)(MotorB->Velosity)/80.0f);
 		//紧急情况
@@ -271,20 +278,28 @@ void ov7725_identify_cross(void)
 	int col;
 	int row;
 	uint32	tmp;
+	int flag;
+	flag = 0;
 //	float tmp_deflection;
-	tmp=0;
-	for(col=0;col<=9;col++){
-		tmp += 0x01 & (OV_pictures_SRAM.pic1_data[30][col]>0);
-	}
-	if(tmp==0){
-		Ov7725->mode = 2;
-		Ov7725->pic.escape_position = 30;
-		for(row=CAMERA_H-1;row>Ov7725->pic.escape_position;row--){
-			Ov7725->pic.border_pos_L[row] = 80;
-			Ov7725->pic.border_pos_R[row] = 80;
+	for(row=30;row<45;row++){
+		tmp=0;
+		for(col=0;col<=9;col++){
+			tmp += 0x01 & (OV_pictures_SRAM.pic1_data[row][col]>0);
 		}
-		ov7725_get_border();
-		ov7725_get_2slope();
+		if(tmp==0){
+			flag = 1;
+		}
+	}
+	if(flag==1){
+		Ov7725->mode = 2;
+
+//		Ov7725->pic.escape_position = 30;
+//		for(row=CAMERA_H-1;row>Ov7725->pic.escape_position;row--){
+//			Ov7725->pic.border_pos_L[row] = 80;
+//			Ov7725->pic.border_pos_R[row] = 80;
+//		}
+//		ov7725_get_border();
+//		ov7725_get_2slope();
 	}
 	else{
 		Ov7725->mode = 0;
