@@ -22,24 +22,24 @@ uint8                Sflag=0;
 uint8				 Sflag_MARK = 0;
 //权重
 #define CNST_3			2.0f	//曲率变化灵敏度(只能看到一边时)
-#define CNST_4			2.0f	//(MotorB->Velosity/150)	//曲率变化灵敏度(两边都能看到时)(弯道时)(取弯道外侧曲率)
+#define CNST_4			1.0f	//(MotorB->Velosity/150)	//曲率变化灵敏度(两边都能看到时)(弯道时)(取弯道外侧曲率)
 #define CNST_5			1		//车身角度权重
 #define	CNST6			1		//底部偏移权重(加权平均用)
 #define	CNST7			1		//远部偏移权重(加权平均用)
-#define	CNST8			1		//弯道偏移权重(加权平均用)
+#define	CNST8			0.75	//弯道偏移权重(加权平均用)
 //阈值
 #define	MIN_deflection	0		//角度最小动作量
 #define	BIAS_POSION		0		//偏内侧行驶量
 //#define	POS_BORDER_MARK	20		//若扫到距边沿20列了,则认为另一边没有识别的必要性
 //道路识别(主)
-#define	POS_DIS_		21		//实际位置(加权平均用) 21(不压线) 25(压线) 29
+#define	POS_DIS_		25		//实际位置(加权平均用) 21(不压线) 25(压线) 29
 #define	POS_PRE_		65		//弯道模式中提前打用(依照距离)
-#define	POS3_DIS_		(59-(MotorB->Velosity/100))		//弯道位置(加权平均用)
+#define	POS3_DIS_		(45-(MotorB->Velosity/100))		//弯道位置(加权平均用)
 //道路识别(辅)
 #define	THRESHOLD		100		//前沿距离判定弯道(cm)
 #define	THRESHOLD_S		40		//十字弯
 //PID参数
-#define	SERVO_PID_KP_S	0.4		//直道
+#define	SERVO_PID_KP_S	0.6		//直道
 #define	SERVO_PID_KP_C	0.7		//弯道 0.7
 
 #pragma optimize=speed
@@ -115,12 +115,19 @@ void ov7725_cal(void)
 					RectifyY[(Ov7725->pic.start_R+Ov7725->pic.end_R)/2][Ov7725->pic.border_pos_R[(Ov7725->pic.start_R+Ov7725->pic.end_R)/2]]);
 //			printf("QvLv %d\n",(int)(tmp_deflection*1000));
 		}
-		if(fabsf(tmp_deflection)<2.78){
+		if(fabsf(tmp_deflection)<0.7){
 			Ov7725->QuLv = tmp_deflection;
 			Ov7725->mode = 1;
 		}
 		else{
-			Ov7725->mode = 0;
+			if(fabsf((Ov7725->QuLv+tmp_deflection)/2)>=0.7){
+				Ov7725->QuLv = tmp_deflection;
+				Ov7725->mode = 0;
+			}
+			else{
+				Ov7725->QuLv = Ov7725->QuLv+0.02;
+				Ov7725->mode = 1;
+			}
 		}
 	}
 	if((Ov7725->distance) <= 70){
@@ -147,7 +154,7 @@ void ov7725_cal(void)
 			Sflag_MARK = 0;
 			Sflag = 0;
 		}
-		MotorB->Target_Velosity=600;
+		MotorB->Target_Velosity=650;
 		Weizhi_PID->Kp = SERVO_PID_KP_S;
 		Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2);
 		Ov7725->LOCK = 0;
@@ -175,22 +182,22 @@ void ov7725_cal(void)
 		return;
 	}
 	if(Ov7725->mode == 1){
-		Weizhi_PID->Kd = (MotorB->Velosity/100);
+		Weizhi_PID->Kd = ((float)(MotorB->Velosity)/80.0f);
 		//紧急情况
 		if(Ov7725->distance <= 40){
 			if(Ov7725->pic.exit_L){
-				Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
+				Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
 				Ov7725->pos.location_bias -= BIAS_POSION;
-				tmp_deflection = CNST_3*(-2.78-Ov7725->QuLv);
+				tmp_deflection = CNST_3*(-2.37-Ov7725->QuLv);
 				tmp_deflection -= (1.5*(POS_PRE_-50) +CNST_4*10);
 				if((Ov7725->pic.start_L < 30)||(Ov7725->pic.end_L>55)){
 					tmp_deflection = -tmp_deflection;
 				}
 			}
 			else if(Ov7725->pic.exit_R){
-				Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
+				Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
 				Ov7725->pos.location_bias += BIAS_POSION;
-				tmp_deflection = CNST_3*(2.78-Ov7725->QuLv);
+				tmp_deflection = CNST_3*(2.37-Ov7725->QuLv);
 				tmp_deflection += (1.5*(POS_PRE_-50) +CNST_4*10);
 				if((Ov7725->pic.start_R < 30)||(Ov7725->pic.end_R>55)){
 					tmp_deflection = -tmp_deflection;
@@ -218,9 +225,9 @@ void ov7725_cal(void)
 //			else{
 				Ov7725->mode = 1;
 				if((Ov7725->pic.end_L < Ov7725->pic.end_R)){
-					Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
+					Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
 					Ov7725->pos.location_bias -= BIAS_POSION;
-					tmp_deflection = CNST_3*(-2.78-Ov7725->QuLv);
+					tmp_deflection = CNST_3*(-2.37-Ov7725->QuLv);
 					if(Ov7725->distance <= POS_PRE_-10){
 						tmp_deflection -= (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
 					}
@@ -232,9 +239,9 @@ void ov7725_cal(void)
 					}
 				}
 				else if((Ov7725->pic.end_R < Ov7725->pic.end_L)){
-					Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
+					Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
 					Ov7725->pos.location_bias += BIAS_POSION;
-					tmp_deflection = CNST_3*(2.78-Ov7725->QuLv);
+					tmp_deflection = CNST_3*(2.37-Ov7725->QuLv);
 					if(Ov7725->distance <= POS_PRE_-10){
 						tmp_deflection += (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
 					}
@@ -263,16 +270,29 @@ void ov7725_identify_cross(void)
 {
 	int col;
 	int row;
-	uint32	tmp=0;
-	int flag=0;
+	uint32	tmp;
 //	float tmp_deflection;
-//	for(col=0;col<=9;col++){
-//		tmp += 0x1 & (OV_pictures_SRAM.pic1_data[59][col]>0);
-//	}
-//	if(tmp==0){
-//		Ov7725->mode = 2; //(底端无黑边)
-//	}
+	tmp=0;
+	for(col=0;col<=9;col++){
+		tmp += 0x01 & (OV_pictures_SRAM.pic1_data[30][col]>0);
+	}
+	if(tmp==0){
+		Ov7725->mode = 2;
+		Ov7725->pic.escape_position = 30;
+		for(row=CAMERA_H-1;row>Ov7725->pic.escape_position;row--){
+			Ov7725->pic.border_pos_L[row] = 80;
+			Ov7725->pic.border_pos_R[row] = 80;
+		}
+		ov7725_get_border();
+		ov7725_get_2slope();
+	}
+	else{
+		Ov7725->mode = 0;
+	}
 //	else{
+
+
+	/*
 		tmp=0;
 		flag=0;
 		if(Ov7725->pic.end_L > Ov7725->pic.start_R){
@@ -339,6 +359,7 @@ void ov7725_identify_cross(void)
 				Ov7725->mode = 0;
 			}
 		}
+*/
 //	}
 //	//  实际斜率
 //	if(Ov7725->mode == 2){
