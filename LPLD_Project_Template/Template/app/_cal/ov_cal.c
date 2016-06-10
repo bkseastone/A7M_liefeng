@@ -40,7 +40,7 @@ uint8				 Sflag_MARK = 0;
 #define	THRESHOLD_S		40		//十字弯
 //PID参数
 #define	SERVO_PID_KP_S	0.4		//直道
-#define	SERVO_PID_KP_C	0.65		//弯道 0.7
+#define	SERVO_PID_KP_C	0.7		//弯道 0.7
 
 #pragma optimize=speed
 void ov7725_cal(void)
@@ -115,7 +115,7 @@ void ov7725_cal(void)
 					RectifyY[(Ov7725->pic.start_R+Ov7725->pic.end_R)/2][Ov7725->pic.border_pos_R[(Ov7725->pic.start_R+Ov7725->pic.end_R)/2]]);
 //			printf("QvLv %d\n",(int)(tmp_deflection*1000));
 		}
-		if(fabsf(tmp_deflection)<1.6){
+		if(fabsf(tmp_deflection)<2.78){
 			Ov7725->QuLv = tmp_deflection;
 			Ov7725->mode = 1;
 		}
@@ -175,13 +175,13 @@ void ov7725_cal(void)
 		return;
 	}
 	if(Ov7725->mode == 1){
-//		Weizhi_PID->Kd = (MotorB->Velosity/120);
+		Weizhi_PID->Kd = (MotorB->Velosity/100);
 		//紧急情况
 		if(Ov7725->distance <= 40){
 			if(Ov7725->pic.exit_L){
 				Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
 				Ov7725->pos.location_bias -= BIAS_POSION;
-				tmp_deflection = CNST_3*(-1.67-1.67-Ov7725->QuLv);
+				tmp_deflection = CNST_3*(-2.78-Ov7725->QuLv);
 				tmp_deflection -= (1.5*(POS_PRE_-50) +CNST_4*10);
 				if((Ov7725->pic.start_L < 30)||(Ov7725->pic.end_L>55)){
 					tmp_deflection = -tmp_deflection;
@@ -190,7 +190,7 @@ void ov7725_cal(void)
 			else if(Ov7725->pic.exit_R){
 				Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
 				Ov7725->pos.location_bias += BIAS_POSION;
-				tmp_deflection = CNST_3*(1.67+1.67-Ov7725->QuLv);
+				tmp_deflection = CNST_3*(2.78-Ov7725->QuLv);
 				tmp_deflection += (1.5*(POS_PRE_-50) +CNST_4*10);
 				if((Ov7725->pic.start_R < 30)||(Ov7725->pic.end_R>55)){
 					tmp_deflection = -tmp_deflection;
@@ -220,7 +220,7 @@ void ov7725_cal(void)
 				if((Ov7725->pic.end_L < Ov7725->pic.end_R)){
 					Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
 					Ov7725->pos.location_bias -= BIAS_POSION;
-					tmp_deflection = CNST_3*(-1.67-1.67-Ov7725->QuLv);
+					tmp_deflection = CNST_3*(-2.78-Ov7725->QuLv);
 					if(Ov7725->distance <= POS_PRE_-10){
 						tmp_deflection -= (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
 					}
@@ -234,7 +234,7 @@ void ov7725_cal(void)
 				else if((Ov7725->pic.end_R < Ov7725->pic.end_L)){
 					Ov7725->pos.location_bias = CNST8*(tmpR_location_bias3 - tmpL_location_bias3);
 					Ov7725->pos.location_bias += BIAS_POSION;
-					tmp_deflection = CNST_3*(1.67+1.67-Ov7725->QuLv);
+					tmp_deflection = CNST_3*(2.78-Ov7725->QuLv);
 					if(Ov7725->distance <= POS_PRE_-10){
 						tmp_deflection += (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
 					}

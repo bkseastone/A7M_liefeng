@@ -33,7 +33,7 @@ int32 Weizhi_PID_cal(void)
 	e_dis = Weizhi_PID->nowe-Weizhi_PID->laste;
 //	if(e_dis>(8/Weizhi_PID->Kp)){
 //		Ov7725->LOCK = 1;
-//		LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, 0);
+//		LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, INLET_MAX);
 //	}
     Weizhi_PID->out =  (int32)(Weizhi_PID->Kp*       Weizhi_PID->nowe+ \
 			       Weizhi_PID->Kd*       (e_dis) );

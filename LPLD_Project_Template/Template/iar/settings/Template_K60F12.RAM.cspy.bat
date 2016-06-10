@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "D:\Users\bkseastone\Downloads\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" --backend -f "D:\Users\bkseastone\Downloads\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" --backend -f "A:\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "D:\Users\bkseastone\Downloads\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" "--debug_file=%~1" --backend -f "D:\Users\bkseastone\Downloads\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "A:\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.general.xcl" "--debug_file=%~1" --backend -f "A:\A7M_liefeng_v3\LPLD_Project_Template\Template\iar\settings\Template_K60F12.RAM.driver.xcl" 
 
 @echo off 
 :end

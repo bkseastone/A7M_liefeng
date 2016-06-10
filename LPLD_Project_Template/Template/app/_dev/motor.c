@@ -56,11 +56,11 @@ void throttle_control(void)
 //  else{
 //  	MotorB->Target_Velosity = 400;
 //  }
-  if(Ov7725->mode == 1){
+  if(Ov7725->distance>160){
     MotorB->Target_Velosity=VELOCITY_MAX;
   }
   else{
-    MotorB->Target_Velosity = 500;//*((float)(250-Ov7725->distance)/(float)250.0));
+    MotorB->Target_Velosity = 500;//(uint32)(VELOCITY_MAX*((float)(250-Ov7725->distance)/(float)250.0));
   }
 //  if(MotorB->Target_Velosity<500){
 //    MotorB->Target_Velosity = 500;
