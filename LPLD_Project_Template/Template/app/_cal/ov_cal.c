@@ -32,16 +32,16 @@ uint8				 Sflag_MARK = 0;
 #define	BIAS_POSION		0		//偏内侧行驶量
 //#define	POS_BORDER_MARK	20		//若扫到距边沿20列了,则认为另一边没有识别的必要性
 //道路识别(主)
-#define	POS_DIS_		25		//实际位置(加权平均用) 21(不压线) 25(压线) 29
+#define	POS_DIS_		35		//实际位置(加权平均用) 21(不压线) 25(压线) 29  35 36 37
 #define	POS_PRE_		65		//弯道模式中提前打用(依照距离)
 #define	POS3_DIS_		(45-(MotorB->Velosity/100))		//弯道位置(加权平均用)
-#define	POS_curve_S		6.4		//小s弯偏移量矫正
+#define	POS_curve_S		5.5f	//小s弯偏移量矫正
 //道路识别(辅)
 #define	THRESHOLD		100		//前沿距离判定弯道(cm)
 #define	THRESHOLD_S		40		//十字弯
 //PID参数
 #define	SERVO_PID_KP_S	0.4		//直道
-#define	SERVO_PID_KP_C_s 0.6		//小s弯
+#define	SERVO_PID_KP_C_s 0.5		//小s弯
 #define	SERVO_PID_KP_C	0.7		//弯道 0.7
 
 #pragma optimize=speed
@@ -143,6 +143,7 @@ void ov7725_cal(void)
 		ov7725_Spanduan();
 	}
 	if(Sflag>=1){
+		Weizhi_PID->Kd = 5;
 		Ov7725->GOODSTATUS = 1;
 		Ov7725->distance = 200;//go on
 		tmp = 0;
@@ -156,19 +157,22 @@ void ov7725_cal(void)
 			Sflag_MARK = 0;
 			Sflag = 0;
 		}
-		MotorB->Target_Velosity=750;
+		MotorB->Target_Velosity=700;
 		Weizhi_PID->Kp = SERVO_PID_KP_C_s;
 		Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2 + POS_curve_S);
+//		Ov7725->pos.deflection = 0;
 		Ov7725->LOCK = 0;
 		return;
 	}
 	//十字
 	if(Ov7725->mode ==2){
+		Weizhi_PID->Kd = 0;
 		Ov7725->LOCK = 0;
 		return;
 	}
 	//直道
 	if(Ov7725->mode == 0){
+		Weizhi_PID->Kd = 0;
 		//斜率
 		if((Ov7725->pic.start_R - Ov7725->pic.end_R)>(Ov7725->pic.start_L - Ov7725->pic.end_L)){
 			tmp_deflection = (((float)(RectifyX[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]])- \
@@ -290,6 +294,7 @@ void ov7725_identify_cross(void)
 		}
 		if(tmp==0){
 			flag = 1;
+			break;
 		}
 	}
 	if(flag==1){
