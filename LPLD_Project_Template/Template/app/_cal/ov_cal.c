@@ -35,13 +35,13 @@ uint8				 Sflag_MARK = 0;
 #define	POS_DIS_		35		//实际位置(加权平均用) 21(不压线) 25(压线) 29  35 36 37
 #define	POS_PRE_		65		//弯道模式中提前打用(依照距离)
 #define	POS3_DIS_		(45-(MotorB->Velosity/100))		//弯道位置(加权平均用)
-#define	POS_curve_S		5.5f	//小s弯偏移量矫正
+#define	POS_curve_S		0.0f	//小s弯偏移量矫正
 //道路识别(辅)
 #define	THRESHOLD		100		//前沿距离判定弯道(cm)
 #define	THRESHOLD_S		40		//十字弯
 //PID参数
 #define	SERVO_PID_KP_S	0.4		//直道
-#define	SERVO_PID_KP_C_s 0.5		//小s弯
+#define	SERVO_PID_KP_C_s 0.35		//小s弯
 #define	SERVO_PID_KP_C	0.7		//弯道 0.7
 
 #pragma optimize=speed
