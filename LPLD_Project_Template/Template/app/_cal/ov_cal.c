@@ -24,8 +24,8 @@ uint8				 Sflag_MARK = 0;
 #define CNST_3			2.0f	//曲率变化灵敏度(只能看到一边时)
 #define CNST_4			1.0f	//(MotorB->Velosity/150)	//曲率变化灵敏度(两边都能看到时)(弯道时)(取弯道外侧曲率)
 #define CNST_5			1		//车身角度权重
-#define	CNST6			1		//底部偏移权重(加权平均用)
-#define	CNST7			1		//远部偏移权重(加权平均用)
+#define	CNST6			1		//底部偏移权重(s加权平均用)
+#define	CNST7			1		//远部偏移权重(s加权平均用)
 #define	CNST8			0.75	//弯道偏移权重(加权平均用)
 #define	CNST9			1.5		//障碍中心点权重
 //阈值
@@ -33,9 +33,10 @@ uint8				 Sflag_MARK = 0;
 #define	BIAS_POSION		0		//偏内侧行驶量
 //#define	POS_BORDER_MARK	20		//若扫到距边沿20列了,则认为另一边没有识别的必要性
 //道路识别(主)
-#define	POS_DIS_		35		//实际位置(加权平均用) 21(不压线) 25(压线) 29  35 36 37
+#define	POS1_DIS_		(CAMERA_H-1)	//基础位置偏差
+#define	POS2_DIS_		35		//(S加权平均用) 21(不压线) 25(压线) 29  35 36 37
+#define	POS3_DIS_		(45-(MotorB->Velosity/100))		//弯道位置(mode1加权平均用)
 #define	POS_PRE_		65		//弯道模式中提前打用(依照距离)
-#define	POS3_DIS_		(45-(MotorB->Velosity/100))		//弯道位置(加权平均用)
 #define	POS_curve_S		0.0f	//小s弯偏移量矫正
 //道路识别(辅)
 #define	THRESHOLD		100		//前沿距离判定弯道(cm)
@@ -63,22 +64,22 @@ void ov7725_cal(void)
 	ov7725_get_border();//沿缘线寻黑边
 	ov7725_get_2slope();//逐差法求两边沿线斜率
 	//待定的二次关系(为方便调试，暂时用Servo_PID->Kp代替)
-	Ov7725->gain = 0.8;
+	//Ov7725->gain = 0.8;
 	//车身距左右边界虚拟距离
-	if(Ov7725->pic.border_pos_L[CAMERA_H-1]==80){
+	if(Ov7725->pic.border_pos_L[POS1_DIS_]==80){
 		tmpL_location_bias = 0;
 	}
 	else{
-		tmpL_location_bias = 1+Ov7725->pic.border_pos_L[CAMERA_H-1];
+		tmpL_location_bias = 1+Ov7725->pic.border_pos_L[POS1_DIS_];
 	}
-	tmpR_location_bias = 80-Ov7725->pic.border_pos_R[CAMERA_H-1];
-	if(Ov7725->pic.border_pos_L[POS_DIS_]==80){
+	tmpR_location_bias = 80-Ov7725->pic.border_pos_R[POS1_DIS_];
+	if(Ov7725->pic.border_pos_L[POS2_DIS_]==80){
 		tmpL_location_bias2 = 0;
 	}
 	else{
-		tmpL_location_bias2 = 1+Ov7725->pic.border_pos_L[POS_DIS_];
+		tmpL_location_bias2 = 1+Ov7725->pic.border_pos_L[POS2_DIS_];
 	}
-	tmpR_location_bias2 = 80-Ov7725->pic.border_pos_R[POS_DIS_];
+	tmpR_location_bias2 = 80-Ov7725->pic.border_pos_R[POS2_DIS_];
 	if(Ov7725->pic.border_pos_L[POS3_DIS_]==80){
 		tmpL_location_bias3 = 0;
 	}
@@ -86,7 +87,7 @@ void ov7725_cal(void)
 		tmpL_location_bias3 = 1+Ov7725->pic.border_pos_L[POS3_DIS_];
 	}
 	tmpR_location_bias3 = 80-Ov7725->pic.border_pos_R[POS3_DIS_];
-	Ov7725->pos.location_bias = (int)(CNST6*(tmpR_location_bias-tmpL_location_bias));
+	Ov7725->pos.location_bias = (int)(tmpR_location_bias-tmpL_location_bias);
 	//十字弯识别
 	ov7725_identify_cross();
 	//车头距前边界真实距离
@@ -118,9 +119,9 @@ void ov7725_cal(void)
 		else{
 			tmp2_bar = Ov7725->pic.end_R;
 		}
-		tmp2_bar = ((tmp2_bar>=16)?tmp2_bar:16);
+		tmp2_bar = ((tmp2_bar>=16)?tmp2_bar:16);//目的：滤掉误判为s的情况(逐步变大常数即可)
 		for(row=tmp1_bar;row>=tmp2_bar;row--){
-			for(col=Ov7725->pic.border_pos_L[row]+1;col<=Ov7725->pic.border_pos_R[row]-1;col++){
+			for(col=Ov7725->pic.border_pos_L[row]+1;col<=Ov7725->pic.border_pos_R[row]-1;col++){//!!!bug!!!//会不会是引起误判s的原因：从左往右扫
 				if(OV_pictures.pic1_data[row][col]>0){
 					row_bar = row-1;
 					break;
@@ -204,6 +205,7 @@ void ov7725_cal(void)
 	//十字
 	if(Ov7725->mode ==2){
 		Weizhi_PID->Kd = 0;
+		Weizhi_PID->Kp = SERVO_PID_KP_S;
 		Ov7725->LOCK = 0;
 		return;
 	}
@@ -233,22 +235,23 @@ void ov7725_cal(void)
 					break;
 				}
 			}
-			for(col=Ov7725->pic.border_pos_R[row_bar]-1;col<=Ov7725->pic.border_pos_L[row_bar]+1;col--){
+			for(col=Ov7725->pic.border_pos_R[row_bar]-1;col>=Ov7725->pic.border_pos_L[row_bar]+1;col--){
 				if(OV_pictures.pic1_data[row_bar][col]>0){
 					col_bar_R = col;
 					break;
 				}
 			}
-//			printf("%d, %d, %d\n",row_bar, col_bar_L, col_bar_R);
-		}
-		if(Ov7725->mode == 3){
+
 			if((col_bar_L-Ov7725->pic.border_pos_L[row_bar])<(Ov7725->pic.border_pos_R[row_bar]-col_bar_R)){
-				Ov7725->pos.location_bias = (int)(CNST9*(float)(40-((col_bar_R+Ov7725->pic.border_pos_R[row_bar])/2)));
+				Ov7725->pos.location_bias = (int)(4*CNST9*(float)((40-((col_bar_R+Ov7725->pic.border_pos_R[row_bar])/2))));
+				if(col_bar_R==0){Ov7725->pos.location_bias = -8;}
 			}
 			else{
 				Ov7725->pos.location_bias = (int)(CNST9*(float)(40-((col_bar_L+Ov7725->pic.border_pos_L[row_bar])/2)));
+				if(col_bar_L==0){Ov7725->pos.location_bias = 8;}
 			}
 			Weizhi_PID->Kp = SERVO_PID_KP_B;
+//			printf("%d, %d, %d\n",row_bar, col_bar_L, col_bar_R);
 		}
 		else{
 			Weizhi_PID->Kp = SERVO_PID_KP_S;
@@ -258,7 +261,6 @@ void ov7725_cal(void)
 	}
 	//弯道
 	if(Ov7725->mode == 1){
-		Weizhi_PID->Kd = ((float)(MotorB->Velosity)/80.0f);
 		//紧急情况
 		if(Ov7725->distance <= 40){
 			if(Ov7725->pic.exit_L){
@@ -279,66 +281,44 @@ void ov7725_cal(void)
 					tmp_deflection = -tmp_deflection;
 				}
 			}
-//			if((Ov7725->pic.exit_L) || (Ov7725->pic.exit_R)){
-//				throttle_control();
-				tmp_deflection = ((fabsf(tmp_deflection)<MIN_deflection)?0:tmp_deflection);
-				Ov7725->pos.deflection = (int)tmp_deflection;
-				Weizhi_PID->Kp = SERVO_PID_KP_C;
-				Ov7725->LOCK = 0;
-//			}
 		}
 		//正常弯道情况
 		else if(Ov7725->distance <= THRESHOLD){
-//			if(((Ov7725->pic.exit_L==1)&&(Ov7725->pic.end_L<=4))||((Ov7725->pic.exit_R==1)&&(Ov7725->pic.end_R<=4))){
-//				Ov7725->mode = 0;//go on //采用直线策略(斜率求车身偏向)
-//			}
-		//		else if((Ov7725->pic.start_R - Ov7725->pic.end_R)>(Ov7725->pic.start_L - Ov7725->pic.end_L)){
-		//			printf("RR_LONG = %d\n",(RectifyY[Ov7725->pic.end_R][Ov7725->pic.border_pos_R[Ov7725->pic.end_R]]-RectifyY[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]]));
-		//		}
-		//		else if((Ov7725->pic.start_R - Ov7725->pic.end_R)<(Ov7725->pic.start_L - Ov7725->pic.end_L)){
-		//			printf("LL_LONG = %d\n",(RectifyY[Ov7725->pic.end_L][Ov7725->pic.border_pos_L[Ov7725->pic.end_L]]-RectifyY[Ov7725->pic.start_L][Ov7725->pic.border_pos_L[Ov7725->pic.start_L]]));
-		//		}
-//			else{
-				Ov7725->mode = 1;
-				if((Ov7725->pic.end_L < Ov7725->pic.end_R)){
-					Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
-					Ov7725->pos.location_bias -= BIAS_POSION;
-					tmp_deflection = CNST_3*(-2.37-Ov7725->QuLv);
-					if(Ov7725->distance <= POS_PRE_-10){
-						tmp_deflection -= (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
-					}
-					else if(Ov7725->distance <= POS_PRE_){
-						tmp_deflection -= CNST_4*(POS_PRE_ - Ov7725->distance);
-					}
-					if((Ov7725->pic.start_L < 30)||(Ov7725->pic.end_L>55)){
-						tmp_deflection = -tmp_deflection;
-					}
+			if((Ov7725->pic.end_L < Ov7725->pic.end_R)){
+				Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
+				Ov7725->pos.location_bias -= BIAS_POSION;
+				tmp_deflection = CNST_3*(-2.37-Ov7725->QuLv);
+				if(Ov7725->distance <= POS_PRE_-10){
+					tmp_deflection -= (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
 				}
-				else if((Ov7725->pic.end_R < Ov7725->pic.end_L)){
-					Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
-					Ov7725->pos.location_bias += BIAS_POSION;
-					tmp_deflection = CNST_3*(2.37-Ov7725->QuLv);
-					if(Ov7725->distance <= POS_PRE_-10){
-						tmp_deflection += (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
-					}
-					else if(Ov7725->distance <= POS_PRE_){
-						tmp_deflection += CNST_4*(POS_PRE_ - Ov7725->distance);
-					}
-					if((Ov7725->pic.start_R < 30)||(Ov7725->pic.end_R>55)){
-						tmp_deflection = -tmp_deflection;
-					}
+				else if(Ov7725->distance <= POS_PRE_){
+					tmp_deflection -= CNST_4*(POS_PRE_ - Ov7725->distance);
 				}
-				//				throttle_control();
-				//				tmp_deflection = ((fabsf(tmp_deflection)<MIN_deflection)?0:tmp_deflection);
-				Ov7725->pos.deflection = (int)tmp_deflection;
-				Weizhi_PID->Kp = SERVO_PID_KP_C;
-				Ov7725->LOCK = 0;
-				return;
-//			}
+				if((Ov7725->pic.start_L < 30)||(Ov7725->pic.end_L>55)){
+					tmp_deflection = -tmp_deflection;
+				}
+			}
+			else if((Ov7725->pic.end_R < Ov7725->pic.end_L)){
+				Ov7725->pos.location_bias = (int)(CNST8*(tmpR_location_bias3 - tmpL_location_bias3));
+				Ov7725->pos.location_bias += BIAS_POSION;
+				tmp_deflection = CNST_3*(2.37-Ov7725->QuLv);
+				if(Ov7725->distance <= POS_PRE_-10){
+					tmp_deflection += (1.5*(POS_PRE_-10 - Ov7725->distance) +CNST_4*10);
+				}
+				else if(Ov7725->distance <= POS_PRE_){
+					tmp_deflection += CNST_4*(POS_PRE_ - Ov7725->distance);
+				}
+				if((Ov7725->pic.start_R < 30)||(Ov7725->pic.end_R>55)){
+					tmp_deflection = -tmp_deflection;
+				}
+			}
 		}
-//		else if(0){
-//			//障碍检测
-//		}
+		tmp_deflection = ((fabsf(tmp_deflection)<MIN_deflection)?0:tmp_deflection);
+		Ov7725->pos.deflection = (int)tmp_deflection;
+		Weizhi_PID->Kd = ((float)(MotorB->Velosity)/80.0f);
+		Weizhi_PID->Kp = SERVO_PID_KP_C;
+		Ov7725->LOCK = 0;
+		return;
 	}
 }
 #pragma optimize=speed
@@ -347,123 +327,16 @@ void ov7725_identify_cross(void)
 	int col;
 	int row;
 	uint32	tmp;
-	int flag;
-	flag = 0;
-//	float tmp_deflection;
 	for(row=30;row<45;row++){
 		tmp=0;
 		for(col=0;col<=9;col++){
 			tmp += 0x01 & (OV_pictures_SRAM.pic1_data[row][col]>0);
 		}
 		if(tmp==0){
-			flag = 1;
+			Ov7725->mode = 2;
 			break;
 		}
 	}
-	if(flag==1){
-		Ov7725->mode = 2;
-
-//		Ov7725->pic.escape_position = 30;
-//		for(row=CAMERA_H-1;row>Ov7725->pic.escape_position;row--){
-//			Ov7725->pic.border_pos_L[row] = 80;
-//			Ov7725->pic.border_pos_R[row] = 80;
-//		}
-//		ov7725_get_border();
-//		ov7725_get_2slope();
-	}
-	else{
-		Ov7725->mode = 0;
-	}
-//	else{
-
-
-	/*
-		tmp=0;
-		flag=0;
-		if(Ov7725->pic.end_L > Ov7725->pic.start_R){
-				flag = -1;
-		}
-		else if((Ov7725->pic.start_L >= Ov7725->pic.end_R)&&(Ov7725->pic.end_L <= Ov7725->pic.end_R)){
-				flag = -1;
-		}
-		else if(Ov7725->pic.end_R >= Ov7725->pic.start_L){
-				flag = 1;
-		}
-		else if((Ov7725->pic.end_R <= Ov7725->pic.end_L)&&(Ov7725->pic.start_R >= Ov7725->pic.end_L)){
-				flag = 1;
-		}
-//                for(col=0;col<=9;col++){
-//                        tmp += 0x1 & (OV_pictures_SRAM.pic1_data[59][col]>0);
-//                }
-//                if(tmp==0){
-//                        flag=0;
-//                }
-//                else{
-//                        tmp=0;
-//                }
-		if(Ov7725->distance<=100){
-				flag = 0;
-		}
-		if(flag==-1){
-			for(col=0;col<=9;col++){
-				tmp += (uint32)(OV_pictures_SRAM.pic1_data[Ov7725->pic.end_L-15][col]);
-			}
-			if(tmp == 0){
-				Ov7725->mode = 2; //交叉路口模式(底端有黑边)
-				Ov7725->pic.escape_position = Ov7725->pic.end_L-15;
-				for(row=CAMERA_H-1;row>Ov7725->pic.escape_position;row--){
-					Ov7725->pic.border_pos_L[row] = 80;
-					Ov7725->pic.border_pos_R[row] = 80;
-				}
-				if(Ov7725->pic.end_L>=40){
-					ov7725_get_border();
-					ov7725_get_2slope();
-				}
-			}
-			else{
-				Ov7725->mode = 0;
-			}
-		}
-		else if(flag==1){
-			for(col=0;col<=9;col++){
-				tmp += (uint32)(OV_pictures_SRAM.pic1_data[Ov7725->pic.end_R-15][col]);
-			}
-			if(tmp == 0){
-				Ov7725->mode = 2;
-				Ov7725->pic.escape_position = Ov7725->pic.end_R-15;
-				for(row=CAMERA_H-1;row>Ov7725->pic.escape_position;row--){
-					Ov7725->pic.border_pos_L[row] = 80;
-					Ov7725->pic.border_pos_R[row] = 80;
-				}
-				if(Ov7725->pic.end_R>=40){
-					ov7725_get_border();
-					ov7725_get_2slope();
-				}
-			}
-			else{
-				Ov7725->mode = 0;
-			}
-		}
-*/
-//	}
-//	//  实际斜率
-//	if(Ov7725->mode == 2){
-//		if((Ov7725->pic.start_R - Ov7725->pic.end_R)>(Ov7725->pic.start_L - Ov7725->pic.end_L)){
-//			tmp_deflection = (((float)(RectifyX[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]])- \
-//				(float)(RectifyX[(Ov7725->pic.end_R+Ov7725->pic.start_R)/2][(Ov7725->pic.border_pos_R[Ov7725->pic.start_R]+Ov7725->pic.border_pos_R[Ov7725->pic.end_R])/2]))/ \
-//				((float)(RectifyY[(Ov7725->pic.end_R+Ov7725->pic.start_R)/2][(Ov7725->pic.border_pos_R[Ov7725->pic.start_R]+Ov7725->pic.border_pos_R[Ov7725->pic.end_R])/2])- \
-//				(float)(RectifyY[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]])));
-//		}
-//		else{
-//			tmp_deflection = (((float)(RectifyX[Ov7725->pic.start_L][Ov7725->pic.border_pos_L[Ov7725->pic.start_L]])- \
-//				(float)(RectifyX[(Ov7725->pic.end_L+Ov7725->pic.start_L)/2][(Ov7725->pic.border_pos_L[Ov7725->pic.start_L]+Ov7725->pic.border_pos_L[Ov7725->pic.end_L])/2]))/ \
-//				((float)(RectifyY[(Ov7725->pic.end_L+Ov7725->pic.start_L)/2][(Ov7725->pic.border_pos_L[Ov7725->pic.start_L]+Ov7725->pic.border_pos_L[Ov7725->pic.end_L])/2])- \
-//				(float)(RectifyY[Ov7725->pic.start_L][Ov7725->pic.border_pos_L[Ov7725->pic.start_L]])));
-//		}
-//		tmp_deflection = (CNST_5*180*atan(tmp_deflection)/9.4248);
-//		tmp_deflection = ((fabsf(tmp_deflection)<MIN_deflection)?0:tmp_deflection);
-//		Ov7725->pos.deflection = (int)tmp_deflection;
-//	}
 }
 #pragma optimize=speed
 void ov7725_get_2slope(void)
@@ -491,12 +364,10 @@ void ov7725_get_2slope(void)
 		if((start_L_OK==0) && ((Ov7725->pic.border_pos_L[row])!=80)){
 			Ov7725->pic.start_L = row;
 			start_L_OK = 1;
-
 		}
 		if((end_L_OK==0) && ((Ov7725->pic.border_pos_L[CAMERA_H-1-row])!=80)){
 			Ov7725->pic.end_L = CAMERA_H-1-row;
 			end_L_OK = 1;
-
 		}
 		if((start_R_OK==0) && ((Ov7725->pic.border_pos_R[row])!=80)){
 			Ov7725->pic.start_R = row;
@@ -509,8 +380,8 @@ void ov7725_get_2slope(void)
 		if(start_L_OK&&end_L_OK&&start_R_OK&&end_R_OK)
 			break;
 	}
-        Ov7725->pic.exit_R = (Ov7725->pic.start_R==Ov7725->pic.end_R)?0:1;
-        Ov7725->pic.exit_L = (Ov7725->pic.start_L==Ov7725->pic.end_L)?0:1;
+	Ov7725->pic.exit_R = (Ov7725->pic.start_R==Ov7725->pic.end_R)?0:1;
+	Ov7725->pic.exit_L = (Ov7725->pic.start_L==Ov7725->pic.end_L)?0:1;
 	if((Ov7725->pic.exit_L==0) || (Ov7725->pic.exit_R==0)){
 		if(Ov7725->pic.exit_L==0){
 			Ov7725->pic.start_L = Ov7725->pic.start_R+1;
@@ -522,7 +393,8 @@ void ov7725_get_2slope(void)
 		}
 		Ov7725->GOODSTATUS = 0;
 		if(Ov7725->mode != 2){
-			Ov7725->mode = Ov7725->pic.exit_L ^ Ov7725->pic.exit_R;
+			//!!!bug!!!//未考虑两边均不存在情况
+			Ov7725->mode = Ov7725->pic.exit_L + Ov7725->pic.exit_R;
 		}
 		return;
 	}
@@ -591,12 +463,23 @@ void ov7725_get_border(void)
 			if((Ov7725->pic.border_pos_L[row]+1)==(Ov7725->pic.border_pos_R[row])){
 				Ov7725->GOODSTATUS = 0;
 				Ov7725->mode = 1;
-				Ov7725->pic.exit_L = (OV_pictures.pic1_data[59][0]>0)&0x01;
-				Ov7725->pic.exit_R = (OV_pictures.pic1_data[59][CAMERA_W-1]>0)&0x01;
-				Ov7725->pic.border_pos_L[row] = (Ov7725->pic.exit_L==1)?Ov7725->pic.border_pos_R[row]:80;
-				Ov7725->pic.border_pos_R[row] = (Ov7725->pic.exit_R==1)?Ov7725->pic.border_pos_R[row]:80;
+				for(col=0;col<=((CAMERA_W/2)-1);col++){
+					if(OV_pictures.pic1_data[59][39-col]==0){
+						Ov7725->pic.exit_L = 0u;
+						break;
+					}
+					if(OV_pictures.pic1_data[59][40+col]==0){
+						Ov7725->pic.exit_R = 0u;
+						break;
+					}
+				}
+				Ov7725->pic.border_pos_L[row] = (Ov7725->pic.exit_L==1)?(39-col):80;
+				Ov7725->pic.border_pos_R[row] = (Ov7725->pic.exit_R==1)?(40+col):80;
 				if(Ov7725->pic.exit_L != Ov7725->pic.exit_R){
 					break;
+				}
+				else{
+					//!!!bug!!!//
 				}
 			}
 		}
@@ -708,7 +591,7 @@ void ov7725_get_border(void)
 				Ov7725->pic.border_pos_L[row] = 80;
 				Ov7725->pic.escape_position = row;
 			}
-			else{
+			else if(Isall_L_OK!=1){
 				Ov7725->pic.escape_position = row;
 				for(_i=0;_i<=40;_i++){
 					if(OV_pictures.pic1_data[row][_i]==0){
@@ -875,7 +758,7 @@ void ov7725_get_border(void)
 				Ov7725->pic.escape_position = row;
 				Ov7725->pic.border_pos_R[row] = 80;
 			}
-			else{
+			else if(Isall_R_OK!=1){
 				Ov7725->pic.escape_position = row;
 				for(_i=79;_i>=40;_i--){
 					if(OV_pictures.pic1_data[row][_i]==0){
