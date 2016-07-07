@@ -32,7 +32,7 @@ void main (void)
 //	Battery->init();
 //	Bluetooth->init();
 	Ov7725->init();
-	LPLD_LPTMR_DelayMs(1000);//调试用
+//	LPLD_LPTMR_DelayMs(1000);//调试用
 	ServoMotor->init();
 	MotorB->init();
 	Encoder_Test->init();

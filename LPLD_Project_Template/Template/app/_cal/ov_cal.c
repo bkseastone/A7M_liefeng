@@ -51,7 +51,7 @@ uint8				 Sflag_MARK = 0;
 void ov7725_cal(void)
 {
     int row,col;
-	unsigned char row_bar,col_bar_L,col_bar_R;
+	unsigned char row_bar=0,col_bar_L=0,col_bar_R=0;
 	int tmp1_bar,tmp2_bar;
 	uint16 tmp =0;
 	float tmp_deflection;
@@ -61,6 +61,9 @@ void ov7725_cal(void)
 	int tmpR_location_bias2;
 	Ov7725->LOCK = 1;
 	Ov7725->mode = 0;
+	Ov7725->pic.exit_L = 1;
+	Ov7725->pic.exit_R = 1;
+	Ov7725->pos.deflection = 0;
 	ov7725_get_border();//沿缘线寻黑边
 	ov7725_get_2slope();//逐差法求两边沿线斜率
 	//待定的二次关系(为方便调试，暂时用Servo_PID->Kp代替)
@@ -129,12 +132,14 @@ void ov7725_cal(void)
 			}
 			if(row_bar>0){
 				Ov7725->mode = 3;
+				Sflag = 0;
+				Sflag_MARK = 0;
 				break;
 			}
 		}
 	}
 	//曲率
-	if((Ov7725->mode != 2)&&(Ov7725->mode != 3)){
+	if((Ov7725->mode != 3)&&(Ov7725->mode != 2)){
 		if(Ov7725->pic.end_L < Ov7725->pic.end_R){
 			tmp_deflection = -CurvatureABC(RectifyX[Ov7725->pic.start_L][Ov7725->pic.border_pos_L[Ov7725->pic.start_L]], \
 					RectifyY[Ov7725->pic.start_L][Ov7725->pic.border_pos_L[Ov7725->pic.start_L]], \
@@ -168,17 +173,16 @@ void ov7725_cal(void)
 			}
 		}
 	}
-	if((Ov7725->distance) <= 70){
-		Ov7725->mode = 1;
-	}
+//	if((Ov7725->distance) <= 70){
+//		Ov7725->mode = 1;
+//	}
 /*	调试小S弯用
 	Ov7725->GOODSTATUS = 1;
 	Ov7725->distance = 200;
 */
-	if(Sflag==0){
-		if(Ov7725->mode != 3){
+	if((Sflag==0)&&(Ov7725->mode != 3)){
 			ov7725_Spanduan();
-		}
+
 	}
 	if(Sflag>=1){
 		Weizhi_PID->Kd = 5;
@@ -205,7 +209,7 @@ void ov7725_cal(void)
 	//十字
 	if(Ov7725->mode ==2){
 		Weizhi_PID->Kd = 0;
-		Weizhi_PID->Kp = SERVO_PID_KP_S;
+//		Weizhi_PID->Kp = SERVO_PID_KP_S;
 		Ov7725->LOCK = 0;
 		return;
 	}
@@ -241,14 +245,17 @@ void ov7725_cal(void)
 					break;
 				}
 			}
-
+			if(col_bar_R==0){
+				Ov7725->mode = 0;
+				Weizhi_PID->Kp = SERVO_PID_KP_S;
+				Ov7725->LOCK = 0;
+				return;
+			}
 			if((col_bar_L-Ov7725->pic.border_pos_L[row_bar])<(Ov7725->pic.border_pos_R[row_bar]-col_bar_R)){
-				Ov7725->pos.location_bias = (int)(4*CNST9*(float)((40-((col_bar_R+Ov7725->pic.border_pos_R[row_bar])/2))));
-				if(col_bar_R==0){Ov7725->pos.location_bias = -8;}
+				Ov7725->pos.location_bias = (int)(CNST9*(float)((40-((col_bar_R+Ov7725->pic.border_pos_R[row_bar])/2))));
 			}
 			else{
 				Ov7725->pos.location_bias = (int)(CNST9*(float)(40-((col_bar_L+Ov7725->pic.border_pos_L[row_bar])/2)));
-				if(col_bar_L==0){Ov7725->pos.location_bias = 8;}
 			}
 			Weizhi_PID->Kp = SERVO_PID_KP_B;
 //			printf("%d, %d, %d\n",row_bar, col_bar_L, col_bar_R);
@@ -465,11 +472,13 @@ void ov7725_get_border(void)
 				Ov7725->mode = 1;
 				for(col=0;col<=((CAMERA_W/2)-1);col++){
 					if(OV_pictures.pic1_data[59][39-col]==0){
-						Ov7725->pic.exit_L = 0u;
+						Ov7725->pic.exit_L = 0;
+						Ov7725->pic.exit_R = 1;
 						break;
 					}
 					if(OV_pictures.pic1_data[59][40+col]==0){
-						Ov7725->pic.exit_R = 0u;
+						Ov7725->pic.exit_R = 0;
+						Ov7725->pic.exit_L = 1;
 						break;
 					}
 				}
