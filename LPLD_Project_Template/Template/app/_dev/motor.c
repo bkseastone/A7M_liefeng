@@ -48,10 +48,10 @@ void ftm_motorB_init(void)
 
 void throttle_control(void)
 {
-  if(Ov7725->distance>140){
+  if(Ov7725->distance>160){
     MotorB->Target_Velosity=VELOCITY_MAX;
   }
   else{
-    MotorB->Target_Velosity = 400;// 650
+    MotorB->Target_Velosity = 650;// 650
   }
 }

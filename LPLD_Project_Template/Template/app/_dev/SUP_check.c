@@ -29,6 +29,7 @@ void init_photocellB2B3(void)
 	StartEndLine->alert = 0;
 }
 #define STARTTIME		3000000
+#define STOPVALTAGE		4500
 void photocell_isr(void)
 {
 	uint16 i;
@@ -55,7 +56,7 @@ void photocell_isr(void)
 				{
 					  asm("nop");
 				}
-				LPLD_FTM_PWM_ChangeDuty(MotorF->FTM_Ftmx, MotorF->chn, INLET_MAX);
+				LPLD_FTM_PWM_ChangeDuty(MotorF->FTM_Ftmx, MotorF->chn, STOPVALTAGE);
 				StartEndLine->perioud=Sys->RunTime;
 			}
 		}
@@ -81,7 +82,7 @@ void photocell_isr(void)
 				{
 					  asm("nop");
 				}
-				LPLD_FTM_PWM_ChangeDuty(MotorF->FTM_Ftmx, MotorF->chn, INLET_MAX);
+				LPLD_FTM_PWM_ChangeDuty(MotorF->FTM_Ftmx, MotorF->chn, STOPVALTAGE);
 				StartEndLine->perioud=Sys->RunTime;
 			}
 		}
