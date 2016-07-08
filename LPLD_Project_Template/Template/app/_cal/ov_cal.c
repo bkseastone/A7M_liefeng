@@ -482,8 +482,8 @@ void ov7725_get_border(void)
 						break;
 					}
 				}
-				Ov7725->pic.border_pos_L[row] = (Ov7725->pic.exit_L==1)?(39-col):80;
-				Ov7725->pic.border_pos_R[row] = (Ov7725->pic.exit_R==1)?(40+col):80;
+				Ov7725->pic.border_pos_L[row] = (Ov7725->pic.exit_L==1)?Ov7725->pic.border_pos_R[row]:80;
+				Ov7725->pic.border_pos_R[row] = (Ov7725->pic.exit_R==1)?Ov7725->pic.border_pos_R[row]:80;
 				if(Ov7725->pic.exit_L != Ov7725->pic.exit_R){
 					break;
 				}
