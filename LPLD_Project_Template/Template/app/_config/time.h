@@ -10,7 +10,7 @@ typedef struct
 	void	(*init)();
 	uint32	PeriodUs;
 	char	PULSE;
-	float	RunTime; //(s)
+	uint32	RunTime; //(s)
 	struct {
 	PITx 	PIT_Pitx;
 	void	(*start)();

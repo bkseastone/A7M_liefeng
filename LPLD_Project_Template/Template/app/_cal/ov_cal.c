@@ -199,7 +199,7 @@ void ov7725_cal(void)
 			Sflag_MARK = 0;
 			Sflag = 0;
 		}
-		MotorB->Target_Velosity=700;
+		MotorB->Target_Velosity=400;
 		Weizhi_PID->Kp = SERVO_PID_KP_C_s;
 		Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2 + POS_curve_S);
 //		Ov7725->pos.deflection = 0;
@@ -243,6 +243,11 @@ void ov7725_cal(void)
 				if(OV_pictures.pic1_data[row_bar][col]>0){
 					col_bar_R = col;
 					break;
+				}
+			}
+			for(col=col_bar_L;col<=col_bar_R;col++){
+				if(OV_pictures.pic1_data[row_bar][col]==0){
+					col_bar_R = 0;
 				}
 			}
 			if(col_bar_R==0){

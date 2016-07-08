@@ -3012,6 +3012,12 @@
       <file>
         <name>$PROJ_DIR$\..\app\_dev\servomotor.h</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\app\_dev\SUP_check.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\app\_dev\SUP_check.h</name>
+      </file>
     </group>
     <file>
       <name>$PROJ_DIR$\..\app\k60_card.h</name>

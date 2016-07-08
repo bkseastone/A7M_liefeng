@@ -2,16 +2,15 @@
 #include "servoPID.h"
 #include "motor.h"
 #include "OV7725_eagle.h"
+#include "SUP_check.h"
 #include "main.h"
-
-uint32 sudu=400;
 
 extern OvTypeDef			*Ov7725;
 extern motorPIDTypeDef		        *motor_PID;
 extern MotorTypeDef			*MotorB;
 extern ServomotorTypeDef	        *ServoMotor;
 extern WeizhiPIDTypeDef         	*Weizhi_PID;
-
+extern PhotocellTypeDef				*StartEndLine;
 
 SystemTypeDef Sys_struct={&pit2_init, 1000, //周期
 						1, //脉冲标志位
@@ -24,6 +23,7 @@ SystemTypeDef *Sys = &Sys_struct;
 PIT_InitTypeDef pit_init_struct2;
 void pit2_init(void)
 {
+	Sys->RunTime = 0;
 	pit_init_struct2.PIT_Pitx = PIT2;
 	pit_init_struct2.PIT_PeriodUs = Sys->PeriodUs;     //定时周期1ms
 	pit_init_struct2.PIT_Isr = pit2_isr;  //设置中断函数
@@ -32,9 +32,11 @@ void pit2_init(void)
 	LPLD_PIT_EnableIrq(pit_init_struct2);
 }
 
+#define ALLOW_PERIOUD		10000 //(单位us)
 void pit2_isr(void)
 {
-  	if(Ov7725->LOCK == 1){
+	Sys->RunTime++;
+  	if((Ov7725->LOCK == 1)||(StartEndLine->start_end==0)){
 		return;
 	}
 	//电机
@@ -46,6 +48,13 @@ void pit2_isr(void)
 // 	Weizhi_PID->nowe = (int32)(0 - (Ov7725->pos.deflection + Ov7725->pos.location_bias));
 //	ServoMotor->Deflection = Weizhi_PID->cal();
 //	LPLD_FTM_PWM_ChangeDuty(ServoMotor->FTM_Ftmx, ServoMotor->chn, angle_to_period(ServoMotor->Deflection));
+	if(StartEndLine->start_end!=0){
+		if(((Sys->RunTime-StartEndLine->perioud)*Sys->PeriodUs)>ALLOW_PERIOUD){
+			StartEndLine->lineR = 0;
+			StartEndLine->lineL = 0;
+			StartEndLine->perioud = 0;
+		}
+	}
 }
 /* 程序运行时间测试 */
 PIT_InitTypeDef pit_init_struct3;

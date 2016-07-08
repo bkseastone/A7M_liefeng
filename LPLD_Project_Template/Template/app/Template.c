@@ -37,6 +37,7 @@ void main (void)
 	MotorB->init();
 	Encoder_Test->init();
 	Sys->init();
+	init_photocellB2B3();
 	while(1)
 	{
 		if(Ov7725->Is_DispPhoto){
