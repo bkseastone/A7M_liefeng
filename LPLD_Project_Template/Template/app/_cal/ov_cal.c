@@ -4,14 +4,16 @@
 #include "rectify.h"
 #include "servoPID.h"
 #include "motor.h"
-extern MotorTypeDef			*MotorB;
+#include "SUP_check.h"
 
+extern MotorTypeDef			*MotorB;
 extern int16                RectifyX[60][81];
 extern int16                RectifyY[60][81];
 extern OvTypeDef			*Ov7725;
 extern OV_pictureTypeDef_SRAM OV_pictures_SRAM @(OV_binary_ADDR+2);
 extern OV_pictureTypeDef OV_pictures @OV_binary_BONDADDR(0, 16);
 extern WeizhiPIDTypeDef		*Weizhi_PID;
+extern PhotocellTypeDef		*StartEndLine;
 int tmpL_location_bias;
 int tmpR_location_bias;
 int tmpL_location_bias2;
@@ -60,6 +62,7 @@ void ov7725_cal(void)
 	int tmpL_location_bias2;
 	int tmpR_location_bias2;
 	Ov7725->LOCK = 1;
+	StartEndLine->alert = 0;
 	Ov7725->mode = 0;
 	Ov7725->pic.exit_L = 1;
 	Ov7725->pic.exit_R = 1;
@@ -173,16 +176,15 @@ void ov7725_cal(void)
 			}
 		}
 	}
-//	if((Ov7725->distance) <= 70){
-//		Ov7725->mode = 1;
-//	}
+	if((Ov7725->distance) <= 70){
+		Ov7725->mode = 1;
+	}
 /*	调试小S弯用
 	Ov7725->GOODSTATUS = 1;
 	Ov7725->distance = 200;
 */
 	if((Sflag==0)&&(Ov7725->mode != 3)){
 			ov7725_Spanduan();
-
 	}
 	if(Sflag>=1){
 		Weizhi_PID->Kd = 5;
@@ -199,7 +201,7 @@ void ov7725_cal(void)
 			Sflag_MARK = 0;
 			Sflag = 0;
 		}
-		MotorB->Target_Velosity=400;
+		MotorB->Target_Velosity=400; //700
 		Weizhi_PID->Kp = SERVO_PID_KP_C_s;
 		Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2 + POS_curve_S);
 //		Ov7725->pos.deflection = 0;
@@ -216,6 +218,7 @@ void ov7725_cal(void)
 	//直道
 	if((Ov7725->mode == 0)||(Ov7725->mode == 3)){
 		Weizhi_PID->Kd = 0;
+		StartEndLine->alert = 1;
 		//斜率
 		if((Ov7725->pic.start_R - Ov7725->pic.end_R)>(Ov7725->pic.start_L - Ov7725->pic.end_L)){
 			tmp_deflection = (((float)(RectifyX[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]])- \

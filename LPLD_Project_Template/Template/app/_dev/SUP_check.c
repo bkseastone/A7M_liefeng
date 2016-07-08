@@ -6,7 +6,7 @@
 extern MotorTypeDef			*MotorB;
 extern OvTypeDef			*Ov7725;
 extern SystemTypeDef		*Sys;
-PhotocellTypeDef StartEndLine_struct = {0,0};
+PhotocellTypeDef StartEndLine_struct = {1,0,0,0,0};
 PhotocellTypeDef* StartEndLine = &StartEndLine_struct;
 #pragma optimize=size
 void init_photocellB2B3(void)
@@ -23,13 +23,14 @@ void init_photocellB2B3(void)
 	LPLD_GPIO_EnableIrq(gpio_init_struct);
 	StartEndLine->lineL = 0;
 	StartEndLine->lineR = 0;
-	StartEndLine->start_end = 0;
+	StartEndLine->start_end = 1;
 	StartEndLine->perioud = 0;
+	StartEndLine->alert = 0;
 }
-
+#define STARTTIME		1000000
 void photocell_isr(void)
 {
-	if(StartEndLine->lineL != 16){
+	if((StartEndLine->lineL != 16)&&((Sys->RunTime)*Sys->PeriodUs>STARTTIME)){
 		if(LPLD_GPIO_IsPinxExt(PORTB, GPIO_Pin3))
 		{
 			if(PTBn_I(3)==1)
@@ -40,16 +41,11 @@ void photocell_isr(void)
 				}
 	//			printf("photocell_L HERE!\r\n");
 			}
-			else if(PTBn_I(3)==0)
-			{
-	//			printf("photocell_L NOP!\r\n");
-			}
-
-			if((StartEndLine->lineL+StartEndLine->lineR)>=2){
+			if((StartEndLine->lineL+StartEndLine->lineR+StartEndLine->alert)>=2){
 				StartEndLine->lineL = 0;
 				StartEndLine->lineR = 0;
 				StartEndLine->perioud = 0;
-				StartEndLine->start_end = !StartEndLine->start_end;
+				StartEndLine->start_end = 0;
 				if(StartEndLine->start_end==0){
 					Ov7725->LOCK = 1;
 					StartEndLine->lineL = 16;
@@ -68,11 +64,11 @@ void photocell_isr(void)
 				}
 	//			printf("photocell_L HERE!\r\n");
 			}
-			if((StartEndLine->lineL+StartEndLine->lineR)>=2){
+			if((StartEndLine->lineL+StartEndLine->lineR+StartEndLine->alert)>=2){
 				StartEndLine->lineL = 0;
 				StartEndLine->lineR = 0;
 				StartEndLine->perioud = 0;
-				StartEndLine->start_end = !StartEndLine->start_end;
+				StartEndLine->start_end = 0;
 				if(StartEndLine->start_end==0){
 					Ov7725->LOCK = 1;
 					StartEndLine->lineL = 16;

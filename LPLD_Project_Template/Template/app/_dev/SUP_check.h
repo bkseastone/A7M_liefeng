@@ -8,6 +8,7 @@ typedef struct
 	char start_end; //start1 end0
 	char lineL;
 	char lineR;
+	char alert;
 	uint32 perioud;
 } PhotocellTypeDef;
 
