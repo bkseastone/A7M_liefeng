@@ -12,21 +12,21 @@
 #include "math.h"
 extern int16                RectifyX[60][81];
 extern int16                RectifyY[60][81];
-extern int16                sudu;
 //extern myic				*Encoder_Feedback;
 extern myic					*Encoder_Test;
-//extern MotorTypeDef		*MotorF;
+extern MotorTypeDef			*MotorF;
 extern MotorTypeDef			*MotorB;
 extern OvTypeDef			*Ov7725;
 extern ServomotorTypeDef	*ServoMotor;
 extern myadc				*Battery;
 extern SystemTypeDef		*Sys;
-extern BluetoothTypeDef 	*Bluetooth;
-extern ServoPIDTypeDef		*Servo_PID;
+//extern BluetoothTypeDef 	*Bluetooth;
+//extern ServoPIDTypeDef		*Servo_PID;
 extern motorPIDTypeDef		*motor_PID;
 extern WeizhiPIDTypeDef		*Weizhi_PID;
 extern int                  Sflag;
 extern OV_pictureTypeDef_SRAM	OV_pictures_SRAM @(OV_binary_ADDR+2);
+#pragma optimize=none
 void main (void)
 {
 //	Battery->init();
@@ -35,6 +35,7 @@ void main (void)
 //	LPLD_LPTMR_DelayMs(1000);//µ÷ÊÔÓÃ
 	ServoMotor->init();
 	MotorB->init();
+	MotorF->init();
 	Encoder_Test->init();
 	Sys->init();
 	init_photocellB2B3();
@@ -58,10 +59,11 @@ void main (void)
 //				printf("ServoMotor-->deflection = %d\n", ServoMotor->Deflection);
 //				printf("GOODSTATUS %d\t mode %d\t Sflag %d\n", Ov7725->GOODSTATUS, Ov7725->mode, Sflag);
 //				printf("distance %d\n", Ov7725->distance);
+//				printf("QvLv %d\n", (int)(Ov7725->QuLv*1000));
 //				printf("PV %d, SV %d\n",MotorB->Velosity,MotorB->Target_Velosity);
 //				printf("\n");
-//				OV_delay();
 //				LPLD_LPTMR_DelayMs(300);
+//				OV_delay();
 			/*Í¼Æ¬*/
 //				Ov7725->display();
 //			#endif

@@ -4,6 +4,7 @@
 #include "time.h"
 
 extern MotorTypeDef			*MotorB;
+extern MotorTypeDef			*MotorF;
 extern OvTypeDef			*Ov7725;
 extern SystemTypeDef		*Sys;
 PhotocellTypeDef StartEndLine_struct = {1,0,0,0,0};
@@ -27,10 +28,11 @@ void init_photocellB2B3(void)
 	StartEndLine->perioud = 0;
 	StartEndLine->alert = 0;
 }
-#define STARTTIME		1000000
+#define STARTTIME		3000000
 void photocell_isr(void)
 {
-	if((StartEndLine->lineL != 16)&&((Sys->RunTime)*Sys->PeriodUs>STARTTIME)){
+	uint16 i;
+	if((StartEndLine->start_end == 1)&&((Sys->RunTime)*Sys->PeriodUs>STARTTIME)){
 		if(LPLD_GPIO_IsPinxExt(PORTB, GPIO_Pin3))
 		{
 			if(PTBn_I(3)==1)
@@ -42,16 +44,19 @@ void photocell_isr(void)
 	//			printf("photocell_L HERE!\r\n");
 			}
 			if((StartEndLine->lineL+StartEndLine->lineR+StartEndLine->alert)>=2){
-				StartEndLine->lineL = 0;
-				StartEndLine->lineR = 0;
-				StartEndLine->perioud = 0;
+				Ov7725->LOCK = 1;
+//				StartEndLine->lineL = 0;
+//				StartEndLine->lineR = 0;
+//				StartEndLine->perioud = 0;
 				StartEndLine->start_end = 0;
-				if(StartEndLine->start_end==0){
-					Ov7725->LOCK = 1;
-					StartEndLine->lineL = 16;
-					LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, 0);
-					PTD8_O = 0;
+				LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, 0);
+				PTD8_O = 0;
+				for(i=0;i<3000;i++)
+				{
+					  asm("nop");
 				}
+				LPLD_FTM_PWM_ChangeDuty(MotorF->FTM_Ftmx, MotorF->chn, INLET_MAX);
+				StartEndLine->perioud=Sys->RunTime;
 			}
 		}
 		else if(LPLD_GPIO_IsPinxExt(PORTB, GPIO_Pin2))
@@ -65,16 +70,19 @@ void photocell_isr(void)
 	//			printf("photocell_L HERE!\r\n");
 			}
 			if((StartEndLine->lineL+StartEndLine->lineR+StartEndLine->alert)>=2){
-				StartEndLine->lineL = 0;
-				StartEndLine->lineR = 0;
-				StartEndLine->perioud = 0;
+				Ov7725->LOCK = 1;
+//				StartEndLine->lineL = 0;
+//				StartEndLine->lineR = 0;
+//				StartEndLine->perioud = 0;
 				StartEndLine->start_end = 0;
-				if(StartEndLine->start_end==0){
-					Ov7725->LOCK = 1;
-					StartEndLine->lineL = 16;
-					LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, 0);
-					PTD8_O = 0;
+				LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, 0);
+				PTD8_O = 0;
+				for(i=0;i<3000;i++)
+				{
+					  asm("nop");
 				}
+				LPLD_FTM_PWM_ChangeDuty(MotorF->FTM_Ftmx, MotorF->chn, INLET_MAX);
+				StartEndLine->perioud=Sys->RunTime;
 			}
 		}
 	}

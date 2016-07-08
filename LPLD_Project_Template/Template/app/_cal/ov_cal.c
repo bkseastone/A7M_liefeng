@@ -129,16 +129,20 @@ void ov7725_cal(void)
 		for(row=tmp1_bar;row>=tmp2_bar;row--){
 			for(col=Ov7725->pic.border_pos_L[row]+1;col<=Ov7725->pic.border_pos_R[row]-1;col++){//!!!bug!!!//会不会是引起误判s的原因：从左往右扫
 				if(OV_pictures.pic1_data[row][col]>0){
-					row_bar = row-1;
+					tmp2_bar = row-4;
+					row_bar++;
 					break;
 				}
 			}
-			if(row_bar>0){
-				Ov7725->mode = 3;
-				Sflag = 0;
-				Sflag_MARK = 0;
-				break;
-			}
+		}
+		if(row_bar>=4){
+			row_bar = tmp2_bar;
+			Ov7725->mode = 3;
+			Sflag = 0;
+			Sflag_MARK = 0;
+		}
+		else{
+			row_bar = 0;
 		}
 	}
 	//曲率
@@ -166,14 +170,14 @@ void ov7725_cal(void)
 			Ov7725->mode = 1;
 		}
 		else{
-			if(fabsf((Ov7725->QuLv+tmp_deflection)/2)>=0.7){
+//			if(fabsf((Ov7725->QuLv+tmp_deflection)/2)>=0.7){
 				Ov7725->QuLv = tmp_deflection;
 				Ov7725->mode = 0;
-			}
-			else{
-				Ov7725->QuLv = Ov7725->QuLv+0.02;
-				Ov7725->mode = 1;
-			}
+//			}
+//			else{
+//				Ov7725->QuLv = Ov7725->QuLv+0.02;
+//				Ov7725->mode = 1;
+//			}
 		}
 	}
 	if((Ov7725->distance) <= 70){
@@ -248,11 +252,15 @@ void ov7725_cal(void)
 					break;
 				}
 			}
-			for(col=col_bar_L;col<=col_bar_R;col++){
-				if(OV_pictures.pic1_data[row_bar][col]==0){
-					col_bar_R = 0;
-				}
-			}
+//			for(col=col_bar_L;col<=col_bar_R;col++){
+//				if(OV_pictures.pic1_data[row_bar][col]==0){
+//					col_bar_R = 0;
+//					Ov7725->mode = 0;
+//					Weizhi_PID->Kp = SERVO_PID_KP_S;
+//					Ov7725->LOCK = 0;
+//					return;
+//				}
+//			}
 			if(col_bar_R==0){
 				Ov7725->mode = 0;
 				Weizhi_PID->Kp = SERVO_PID_KP_S;

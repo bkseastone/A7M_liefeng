@@ -3,15 +3,16 @@
 extern OvTypeDef			*Ov7725;
 extern OV_pictureTypeDef OV_pictures @OV_binary_BONDADDR(0, 16);
 MotorTypeDef Pwm1_A9=	{&ftm_motorF_init, FTM1, FTM_Ch1, PTA9, //后
-				5000, INLET_MAX,	//频率， 占空比
+				5000, 0,	//频率， 占空比
 				2, 			//速度(cm/s)
 				2,			//加速度(cm/s2)
-				100			//目标速度(cm/s)
+				0			//目标速度(cm/s)
 				};
 MotorTypeDef Pwm1_A8=	{&ftm_motorB_init, FTM1, FTM_Ch0, PTA8, //前
 				5000, INLET_MAX,
 				3,
-				3
+				3,
+				0
 				};
 MotorTypeDef*	MotorB = &Pwm1_A8;
 MotorTypeDef*	MotorF = &Pwm1_A9;
@@ -47,10 +48,10 @@ void ftm_motorB_init(void)
 
 void throttle_control(void)
 {
-  if(Ov7725->distance>160){
+  if(Ov7725->distance>140){
     MotorB->Target_Velosity=VELOCITY_MAX;
   }
   else{
-    MotorB->Target_Velosity = 450;//(uint32)(VELOCITY_MAX*((float)(250-Ov7725->distance)/(float)250.0));
+    MotorB->Target_Velosity = 400;// 650
   }
 }

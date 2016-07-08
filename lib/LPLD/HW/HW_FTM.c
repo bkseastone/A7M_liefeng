@@ -23,7 +23,7 @@
 #include "HW_FTM.h"
 
 //用户自定义中断服务函数数组
-#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)
 FTM_ISR_CALLBACK FTM_ISR[3];
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
 FTM_ISR_CALLBACK FTM_ISR[4];
@@ -53,13 +53,13 @@ uint8 LPLD_FTM_Init(FTM_InitTypeDef ftm_init_structure)
 {
   uint8 result, i;
   //参数检查
-  ASSERT( ftm_init_structure.FTM_Mode & 
+  ASSERT( ftm_init_structure.FTM_Mode &
          (FTM_MODE_PWM|FTM_MODE_IC|FTM_MODE_QD|FTM_MODE_DEC));  //判断模式选择
-  
+
   // 使能FTM时钟模块
   if(ftm_init_structure.FTM_Ftmx == FTM0)
   {
-    i=0; 
+    i=0;
     SIM->SCGC6 |= SIM_SCGC6_FTM0_MASK;
   }
   else if(ftm_init_structure.FTM_Ftmx == FTM1)
@@ -83,7 +83,7 @@ uint8 LPLD_FTM_Init(FTM_InitTypeDef ftm_init_structure)
   {
     return 0;
   }
-  
+
   if(ftm_init_structure.FTM_Mode & FTM_MODE_PWM)
   {
     result = LPLD_FTM_PWM_Init(ftm_init_structure);
@@ -100,12 +100,12 @@ uint8 LPLD_FTM_Init(FTM_InitTypeDef ftm_init_structure)
   {
     result = LPLD_FTM_DEC_Init(ftm_init_structure);
   }
-  
+
   if(result == 1)
-  {    
+  {
     //判断是否开启溢出中断
     if(ftm_init_structure.FTM_Isr!=NULL)
-    {      
+    {
       FTM_ISR[i] = ftm_init_structure.FTM_Isr;
       if(ftm_init_structure.FTM_ToiEnable == TRUE)
       {
@@ -113,7 +113,7 @@ uint8 LPLD_FTM_Init(FTM_InitTypeDef ftm_init_structure)
       }
     }
   }
-  
+
   return result;
 }
 
@@ -153,14 +153,14 @@ uint8 LPLD_FTM_Deinit(FTM_InitTypeDef ftm_init_structure)
   {
     return 0;
   }
-  
+
   return LPLD_FTM_DisableIrq(ftm_init_structure);
 }
 
 /*
  * LPLD_FTM_PWM_Enable
  * FTM模块PWM模式输出使能，配置输出通道、占空比、指定对应的引脚、对齐方式
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -218,30 +218,30 @@ uint8 LPLD_FTM_PWM_Enable(FTM_Type *ftmx, FtmChnEnum_Type chn, uint32 duty, Port
 {
   uint32 cv;
   vuint32 mod;
-  
+
   //参数检查
   ASSERT( duty <= 10000 );                  //判断占空比
-  
+
   if(!LPLD_FTM_PinInit(ftmx, chn, pin))
     return 0;
-  
+
   //如果是右对齐，100%-占空比
   if(align == ALIGN_RIGHT)
   {
     duty = 10000 - duty;
   }
-  
+
   //占空比 = (CnV-CNTIN)/(MOD-CNTIN+1)
   mod = ftmx->MOD;
   cv = (duty*(mod-0+1)+0)/10000;
-  
-  // 配置FTM通道控制寄存器 
+
+  // 配置FTM通道控制寄存器
   // 通道模式 MSB:MSA-1X, 通道边缘选择 左对齐 ELSB:ELSA-10
   // 通道模式 MSB:MSA-1X, 通道边缘选择 右对齐 ELSB:ELSA-X1
   ftmx->CONTROLS[chn].CnSC = align;
   // 配置FTM通道值
   ftmx->CONTROLS[chn].CnV  = cv;
-  
+
   return 1;
 }
 
@@ -277,23 +277,23 @@ uint8 LPLD_FTM_PWM_ChangeDuty(FTM_Type *ftmx, FtmChnEnum_Type chn, uint32 duty)
 {
   uint32 cv;
   vuint32 mod;
-  
+
   //参数检查
-//  ASSERT( duty <= 10000 );                  //判断占空比
-    
+  ASSERT( duty <= 10000 );                  //判断占空比
+
   //如果是右对齐，100%-占空比
   if(ftmx->CONTROLS[chn].CnSC & FTM_CnSC_ELSA_MASK)
   {
     duty = 10000 - duty;
   }
-  
+
   //占空比 = (CnV-CNTIN)/(MOD-CNTIN+1)
   mod = ftmx->MOD;
   cv = (duty*(mod-0+1)+0)/10000;
- 
+
   // 配置FTM通道值
   ftmx->CONTROLS[chn].CnV = cv;
-  
+
   return 1;
 }
 
@@ -328,7 +328,7 @@ uint8 LPLD_FTM_DisableChn(FTM_Type *ftmx, FtmChnEnum_Type chn)
   LPLD_FTM_PinDeinit(ftmx, chn);
   ftmx->CONTROLS[chn].CnSC = 0;
   ftmx->CONTROLS[chn].CnV  = 0;
-  
+
   return 1;
 }
 
@@ -396,26 +396,26 @@ uint8 LPLD_FTM_IC_Enable(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_Type 
 {
   if(!LPLD_FTM_PinInit(ftmx, chn, pin))
     return 0;
-  
+
   ftmx->CONTROLS[chn].CnSC = 0x00;
-  
-  ftmx->CONTROLS[chn].CnSC |= capture_edge;        
-  
+
+  ftmx->CONTROLS[chn].CnSC |= capture_edge;
+
   ftmx->CONTROLS[chn].CnSC &= (~FTM_CnSC_CHF_MASK);
   ftmx->CONTROLS[chn].CnSC |= FTM_CnSC_CHIE_MASK;         //使能通道捕获输入中断
-  
+
   ftmx->CONTROLS[chn].CnSC &= (~FTM_CnSC_MSB_MASK);
   ftmx->CONTROLS[chn].CnSC &= (~FTM_CnSC_MSA_MASK);       //配置成Input capture模式
-  
+
   ftmx->CONTROLS[chn].CnSC &= (~FTM_CnSC_DMA_MASK);       //关闭DMA
-  
+
   return 1;
 }
 
 /*
  * LPLD_FTM_IsTOF
  * 判断FTMx是否产生计数溢出中断标志
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -436,7 +436,7 @@ __INLINE boolean LPLD_FTM_IsTOF(FTM_Type *ftmx)
 /*
  * LPLD_FTM_ClearTOF
  * 清除FTMx计数器溢出中断标志
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -457,7 +457,7 @@ __INLINE void LPLD_FTM_ClearTOF(FTM_Type *ftmx)
 /*
  * LPLD_FTM_IsCHnF
  * 判断通道n是否产生中断标志
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -488,7 +488,7 @@ __INLINE boolean LPLD_FTM_IsCHnF(FTM_Type *ftmx, FtmChnEnum_Type chn)
 /*
  * LPLD_FTM_ClearCHnF
  * 清除通道n中断标志
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -519,7 +519,7 @@ __INLINE void LPLD_FTM_ClearCHnF(FTM_Type *ftmx, FtmChnEnum_Type chn)
 /*
  * LPLD_FTM_GetChVal
  * 获取FTMx通道n捕获的FTMx计数值
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -550,7 +550,7 @@ __INLINE uint16 LPLD_FTM_GetChVal(FTM_Type *ftmx, FtmChnEnum_Type chn)
 /*
  * LPLD_FTM_GetClkDiv
  * 获取FTMx时钟分频系数
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -571,7 +571,7 @@ __INLINE uint8 LPLD_FTM_GetClkDiv(FTM_Type *ftmx)
 /*
  * LPLD_FTM_GetCounter
  * 获取FTMx计数器值
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -592,7 +592,7 @@ __INLINE uint16 LPLD_FTM_GetCounter(FTM_Type *ftmx)
 /*
  * LPLD_FTM_ClearCounter
  * 清空FTMx计数器
- * 
+ *
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
@@ -613,7 +613,7 @@ __INLINE void LPLD_FTM_ClearCounter(FTM_Type *ftmx)
 /*
  * LPLD_FTM_EnableIrq
  * 使能FTMx中断
- * 
+ *
  * 参数:
  *    ftm_init_structure--FTM初始化结构体，
  *                        具体定义见FTM_InitTypeDef
@@ -627,7 +627,7 @@ uint8 LPLD_FTM_EnableIrq(FTM_InitTypeDef ftm_init_structure)
 {
   uint8 i;
   FTM_Type *ftmx = ftm_init_structure.FTM_Ftmx;
-  
+
   if(ftmx == FTM0)
     i=0;
   else if(ftmx == FTM1)
@@ -642,14 +642,14 @@ uint8 LPLD_FTM_EnableIrq(FTM_InitTypeDef ftm_init_structure)
     return 0;
 
   enable_irq((IRQn_Type)(FTM0_IRQn + i));
-  
+
   return 1;
 }
 
 /*
  * LPLD_FTM_DisableIrq
  * 禁用FTMx中断
- * 
+ *
  * 参数:
  *    ftm_init_structure--FTM初始化结构体，
  *                        具体定义见FTM_InitTypeDef
@@ -663,7 +663,7 @@ uint8 LPLD_FTM_DisableIrq(FTM_InitTypeDef ftm_init_structure)
 {
   uint8 i;
   FTM_Type *ftmx = ftm_init_structure.FTM_Ftmx;
-  
+
   if(ftmx == FTM0)
     i=0;
   else if(ftmx == FTM1)
@@ -678,7 +678,7 @@ uint8 LPLD_FTM_DisableIrq(FTM_InitTypeDef ftm_init_structure)
     return 0;
 
   disable_irq((IRQn_Type)(FTM0_IRQn + i));
-  
+
   return 1;
 }
 
@@ -711,7 +711,7 @@ uint8 LPLD_FTM_QD_Enable(FTM_Type *ftmx, PortPinsEnum_Type pha, PortPinsEnum_Typ
     return 0;
   if(!LPLD_FTM_PinInit(ftmx, FTM_PhB, phb))
     return 0;
-  
+
   return 1;
 }
 
@@ -734,7 +734,7 @@ uint8 LPLD_FTM_QD_Disable(FTM_Type *ftmx)
     return 0;
   if(!LPLD_FTM_PinDeinit(ftmx, FTM_PhB))
     return 0;
-  
+
   return 1;
 }
 
@@ -752,31 +752,31 @@ static uint8 LPLD_FTM_PWM_Init(FTM_InitTypeDef ftm_init_structure)
   uint8 dt_div = ftm_init_structure.FTM_PwmDeadtimeDiv;
   uint8 dt_val = ftm_init_structure.FTM_PwmDeadtimeVal;
   FTM_Type *ftmx = ftm_init_structure.FTM_Ftmx;
-  
+
   //参数检查
   ASSERT( freq );                  //判断频率
   ASSERT( dt_val<=63 );            //判断死区插入值
-  
+
   bus_clk_hz = g_bus_clock;
-  
+
   if(freq>bus_clk_hz) return 0;
-  
+
   if((mod=bus_clk_hz/(freq*128)) < 0xFFFFu)
   {
     ps = 7;
     mod2=mod;
     if((mod=bus_clk_hz/(freq*64)) < 0xFFFFu)
     {
-      ps = 6;  
-      mod2=mod;  
+      ps = 6;
+      mod2=mod;
       if((mod=bus_clk_hz/(freq*32)) < 0xFFFFu)
       {
-        ps = 5;  
+        ps = 5;
         mod2=mod;
         if((mod=bus_clk_hz/(freq*16)) < 0xFFFFu)
         {
-          ps = 4;  
-          mod2=mod;   
+          ps = 4;
+          mod2=mod;
           if((mod=bus_clk_hz/(freq*8)) < 0xFFFFu)
           {
             ps = 3;
@@ -797,7 +797,7 @@ static uint8 LPLD_FTM_PWM_Init(FTM_InitTypeDef ftm_init_structure)
               }
             }
           }
-        }  
+        }
       }
     }
   }
@@ -805,9 +805,9 @@ static uint8 LPLD_FTM_PWM_Init(FTM_InitTypeDef ftm_init_structure)
   {
     return 0;
   }
-  
+
   ftmx->SC = 0;
-  
+
   // 设置PWM周期及占空比
   //    PWM周期 = (MOD-CNTIN+1)*FTM时钟周期 :
   // 配置FTM计数初始值
@@ -815,15 +815,15 @@ static uint8 LPLD_FTM_PWM_Init(FTM_InitTypeDef ftm_init_structure)
   ftmx->CNTIN = 0;
   // 配置FTM计数MOD值
   ftmx->MOD = mod2;
-  
+
   ftmx->DEADTIME = FTM_DEADTIME_DTPS(dt_div) | FTM_DEADTIME_DTVAL(dt_val);
   ftmx->COMBINE = dt_en;        //使能死区
-  
+
   // 配置FTM控制寄存器
   // 禁用中断, 加计数模式, 时钟源:System clock（Bus Clk）, 分频系数:8
   // 假设SysClk = 50MHz, SC_PS=3, FTM Clk = 50MHz/2^3 = 6.25MHz
   ftmx->SC = FTM_SC_CLKS(1)|FTM_SC_PS(ps);
-  
+
   return 1;
 }
 
@@ -837,20 +837,20 @@ static uint8 LPLD_FTM_IC_Init(FTM_InitTypeDef ftm_init_structure)
   uint8 ps = ftm_init_structure.FTM_ClkDiv;
   FTM_ISR_CALLBACK isr_func = ftm_init_structure.FTM_Isr;
   FTM_Type *ftmx = ftm_init_structure.FTM_Ftmx;
-  
+
   //参数检查
   ASSERT( ps <= 7);             //时钟分频系数
-  
+
   ftmx->CONF=FTM_CONF_BDMMODE(0x3);
-  
+
   ftmx->SC = 0;
-  
+
   ftmx->CNT = 0;
   ftmx->CNTIN = 0;
-  ftmx->MOD = 0;                           
+  ftmx->MOD = 0;
   ftmx->QDCTRL = (~FTM_QDCTRL_QUADEN_MASK); //关闭正交解码
   ftmx->FILTER = 0x00;                      //关过虑器
-  
+
   // 配置FTM控制寄存器
   // 将FTM Counter配置成Free Counter
   // 禁用中断, 加计数模式, 时钟源:System clock（Bus Clk）, 分频系数:PS
@@ -871,7 +871,7 @@ static uint8 LPLD_FTM_IC_Init(FTM_InitTypeDef ftm_init_structure)
 #if defined(CPU_MK60F12) || defined(CPU_MK60F15)
     else if(ftmx == FTM3)
       i=3;
-#endif   
+#endif
     else
       return 0;
     FTM_ISR[i] = isr_func;
@@ -885,7 +885,7 @@ static uint8 LPLD_FTM_IC_Init(FTM_InitTypeDef ftm_init_structure)
  * 初始化通道n指定引脚的FTM复用功能，内部调用
  */
 static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_Type pin)
-{ 
+{
   //根据ftmx使能相应pin的ftm功能
   if(ftmx == FTM0)
   {
@@ -893,7 +893,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
     {
     case FTM_Ch0:
       if(pin == PTA3)
-        PORTA->PCR[3] = PORTA->PCR[3] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[3] = PORTA->PCR[3] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTC1)
         PORTC->PCR[1] = PORTC->PCR[1] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -901,7 +901,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch1:
       if(pin == PTA4)
-        PORTA->PCR[4] = PORTA->PCR[4] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[4] = PORTA->PCR[4] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTC2)
         PORTC->PCR[2] = PORTC->PCR[2] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -909,7 +909,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch2:
       if(pin == PTA5)
-        PORTA->PCR[5] = PORTA->PCR[5] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[5] = PORTA->PCR[5] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTC3)
         PORTC->PCR[3] = PORTC->PCR[3] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -917,7 +917,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch3:
       if(pin == PTA6)
-        PORTA->PCR[6] = PORTA->PCR[6] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[6] = PORTA->PCR[6] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTC4)
         PORTC->PCR[4] = PORTC->PCR[4] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -925,7 +925,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch4:
       if(pin == PTA7)
-        PORTA->PCR[7] = PORTA->PCR[7] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[7] = PORTA->PCR[7] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTD4)
         PORTD->PCR[4] = PORTD->PCR[4] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -933,7 +933,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch5:
       if(pin == PTA0)
-        PORTA->PCR[0] = PORTA->PCR[0] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[0] = PORTA->PCR[0] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTD5)
         PORTD->PCR[5] = PORTD->PCR[5] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -941,7 +941,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch6:
       if(pin == PTA1)
-        PORTA->PCR[1] = PORTA->PCR[1] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[1] = PORTA->PCR[1] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTD6)
         PORTD->PCR[6] = PORTD->PCR[6] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -949,14 +949,14 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch7:
       if(pin == PTA2)
-        PORTA->PCR[2] = PORTA->PCR[2] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[2] = PORTA->PCR[2] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTD7)
         PORTD->PCR[7] = PORTD->PCR[7] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
         return 0;
       break;
     default:
-      return 0;     
+      return 0;
     }
   }
   else if(ftmx == FTM1)
@@ -965,7 +965,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
     {
     case FTM_Ch0:
       if(pin == PTA8)
-        PORTA->PCR[8] = PORTA->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[8] = PORTA->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTA12)
         PORTA->PCR[12] = PORTA->PCR[12] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTB0)
@@ -975,7 +975,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch1:
       if(pin == PTA9)
-        PORTA->PCR[9] = PORTA->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[9] = PORTA->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTA13)
         PORTA->PCR[13] = PORTA->PCR[13] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTB1)
@@ -985,7 +985,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_PhA:
       if(pin == PTA8)
-        PORTA->PCR[8] = PORTA->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTA->PCR[8] = PORTA->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTA12)
         PORTA->PCR[12] = PORTA->PCR[12] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(7);
       else if(pin == PTB0)
@@ -995,7 +995,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_PhB:
       if(pin == PTA9)
-        PORTA->PCR[9] = PORTA->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTA->PCR[9] = PORTA->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTA13)
         PORTA->PCR[13] = PORTA->PCR[13] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(7);
       else if(pin == PTB1)
@@ -1003,7 +1003,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       else
         return 0;
     default:
-      return 0;   
+      return 0;
     }
   }
   else if(ftmx == FTM2)
@@ -1012,7 +1012,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
     {
     case FTM_Ch0:
       if(pin == PTA10)
-        PORTA->PCR[10] = PORTA->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[10] = PORTA->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTB18)
         PORTB->PCR[18] = PORTB->PCR[18] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else
@@ -1020,7 +1020,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch1:
       if(pin == PTA11)
-        PORTA->PCR[11] = PORTA->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3); 
+        PORTA->PCR[11] = PORTA->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else if(pin == PTB19)
         PORTB->PCR[19] = PORTB->PCR[19] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else
@@ -1028,7 +1028,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_PhA:
       if(pin == PTA10)
-        PORTA->PCR[10] = PORTA->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTA->PCR[10] = PORTA->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTB18)
         PORTB->PCR[18] = PORTB->PCR[18] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else
@@ -1036,17 +1036,17 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_PhB:
       if(pin == PTA11)
-        PORTA->PCR[11] = PORTA->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTA->PCR[11] = PORTA->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTB19)
         PORTB->PCR[19] = PORTB->PCR[19] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else
         return 0;
       break;
     default:
-      return 0;   
+      return 0;
     }
   }
-  
+
 #if defined(CPU_MK60F12) || defined(CPU_MK60F15)
   else if(ftmx == FTM3)
   {
@@ -1054,7 +1054,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
     {
     case FTM_Ch0:
       if(pin == PTE5)
-        PORTE->PCR[5] = PORTE->PCR[5] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[5] = PORTE->PCR[5] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTD0)
         PORTD->PCR[0] = PORTD->PCR[0] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -1062,7 +1062,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch1:
       if(pin == PTE6)
-        PORTE->PCR[6] = PORTE->PCR[6] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[6] = PORTE->PCR[6] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTD0)
         PORTD->PCR[1] = PORTD->PCR[1] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -1070,7 +1070,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch2:
       if(pin == PTE7)
-        PORTE->PCR[7] = PORTE->PCR[7] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[7] = PORTE->PCR[7] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTD0)
         PORTD->PCR[2] = PORTD->PCR[2] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -1078,7 +1078,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch3:
       if(pin == PTE8)
-        PORTE->PCR[8] = PORTE->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[8] = PORTE->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTD0)
         PORTD->PCR[3] = PORTD->PCR[3] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
       else
@@ -1086,7 +1086,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch4:
       if(pin == PTE9)
-        PORTE->PCR[9] = PORTE->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[9] = PORTE->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTC8)
         PORTC->PCR[8] = PORTC->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else
@@ -1094,7 +1094,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch5:
       if(pin == PTE10)
-        PORTE->PCR[10] = PORTE->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[10] = PORTE->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTC9)
         PORTC->PCR[9] = PORTC->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else
@@ -1102,7 +1102,7 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch6:
       if(pin == PTE11)
-        PORTE->PCR[11] = PORTE->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[11] = PORTE->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTC10)
         PORTC->PCR[10] = PORTC->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else
@@ -1110,14 +1110,14 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       break;
     case FTM_Ch7:
       if(pin == PTE12)
-        PORTE->PCR[12] = PORTE->PCR[12] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+        PORTE->PCR[12] = PORTE->PCR[12] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6);
       else if(pin == PTC11)
         PORTC->PCR[11] = PORTC->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
       else
         return 0;
       break;
     default:
-      return 0;     
+      return 0;
     }
   }
 #endif
@@ -1141,54 +1141,54 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
     {
     case FTM_Ch0:
       if((PORTA->PCR[3]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[3] = PORT_PCR_MUX(0); 
+        PORTA->PCR[3] = PORT_PCR_MUX(0);
       if((PORTC->PCR[1]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTC->PCR[1] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch1:
       if((PORTA->PCR[4]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[4] = PORT_PCR_MUX(0); 
+        PORTA->PCR[4] = PORT_PCR_MUX(0);
       if((PORTC->PCR[2]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTC->PCR[2] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch2:
       if((PORTA->PCR[5]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[5] = PORT_PCR_MUX(0); 
+        PORTA->PCR[5] = PORT_PCR_MUX(0);
       if((PORTC->PCR[3]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTC->PCR[3] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch3:
       if((PORTA->PCR[6]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[6] = PORT_PCR_MUX(0); 
+        PORTA->PCR[6] = PORT_PCR_MUX(0);
       if((PORTC->PCR[4]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTC->PCR[4] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch4:
       if((PORTA->PCR[7]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[7] = PORT_PCR_MUX(0); 
+        PORTA->PCR[7] = PORT_PCR_MUX(0);
       if((PORTD->PCR[4]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTD->PCR[4] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch5:
       if((PORTA->PCR[0]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[0] = PORT_PCR_MUX(0); 
+        PORTA->PCR[0] = PORT_PCR_MUX(0);
       if((PORTD->PCR[5]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTD->PCR[5] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch6:
       if((PORTA->PCR[1]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[1] = PORT_PCR_MUX(0); 
+        PORTA->PCR[1] = PORT_PCR_MUX(0);
       if((PORTD->PCR[6]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTD->PCR[6] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch7:
       if((PORTA->PCR[2]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[2] = PORT_PCR_MUX(0); 
+        PORTA->PCR[2] = PORT_PCR_MUX(0);
       if((PORTD->PCR[7]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
-        PORTD->PCR[7] = PORT_PCR_MUX(0);      
+        PORTD->PCR[7] = PORT_PCR_MUX(0);
       break;
     default:
-      return 0;     
+      return 0;
     }
   }
   else if(ftmx == FTM1)
@@ -1197,7 +1197,7 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
     {
     case FTM_Ch0:
       if((PORTA->PCR[8]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[8] = PORT_PCR_MUX(0); 
+        PORTA->PCR[8] = PORT_PCR_MUX(0);
       if((PORTA->PCR[12]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTA->PCR[12] = PORT_PCR_MUX(0);
       if((PORTB->PCR[0]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
@@ -1205,7 +1205,7 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
       break;
     case FTM_Ch1:
       if((PORTA->PCR[9]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[9] = PORT_PCR_MUX(0); 
+        PORTA->PCR[9] = PORT_PCR_MUX(0);
       if((PORTA->PCR[13]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTA->PCR[13] = PORT_PCR_MUX(0);
       if((PORTB->PCR[1]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
@@ -1213,7 +1213,7 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
       break;
     case FTM_PhA:
       if((PORTA->PCR[8]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTA->PCR[8] = PORT_PCR_MUX(0); 
+        PORTA->PCR[8] = PORT_PCR_MUX(0);
       if((PORTA->PCR[12]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(7))
         PORTA->PCR[12] = PORT_PCR_MUX(0);
       if((PORTB->PCR[0]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
@@ -1221,14 +1221,14 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
       break;
     case FTM_PhB:
       if((PORTA->PCR[9]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTA->PCR[9] = PORT_PCR_MUX(0); 
+        PORTA->PCR[9] = PORT_PCR_MUX(0);
       if((PORTA->PCR[13]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(7))
         PORTA->PCR[13] = PORT_PCR_MUX(0);
       if((PORTB->PCR[1]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
         PORTB->PCR[1] = PORT_PCR_MUX(0);
       break;
     default:
-      return 0;   
+      return 0;
     }
   }
   else if(ftmx == FTM2)
@@ -1237,30 +1237,30 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
     {
     case FTM_Ch0:
       if((PORTA->PCR[10]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[10] = PORT_PCR_MUX(0); 
+        PORTA->PCR[10] = PORT_PCR_MUX(0);
       if((PORTB->PCR[18]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTB->PCR[18] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch1:
       if((PORTA->PCR[11]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
-        PORTA->PCR[11] = PORT_PCR_MUX(0); 
+        PORTA->PCR[11] = PORT_PCR_MUX(0);
       if((PORTB->PCR[19]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTB->PCR[19] = PORT_PCR_MUX(0);
       break;
     case FTM_PhA:
       if((PORTA->PCR[10]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTA->PCR[10] = PORT_PCR_MUX(0); 
+        PORTA->PCR[10] = PORT_PCR_MUX(0);
       if((PORTB->PCR[18]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
         PORTB->PCR[18] = PORT_PCR_MUX(0);
       break;
     case FTM_PhB:
       if((PORTA->PCR[11]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTA->PCR[11] = PORT_PCR_MUX(0); 
+        PORTA->PCR[11] = PORT_PCR_MUX(0);
       if((PORTB->PCR[19]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
         PORTB->PCR[19] = PORT_PCR_MUX(0);
       break;
     default:
-      return 0;   
+      return 0;
     }
   }
 #if defined(CPU_MK60F12) || defined(CPU_MK60F15)
@@ -1270,54 +1270,54 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
     {
     case FTM_Ch0:
       if((PORTE->PCR[5]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[5] = PORT_PCR_MUX(0); 
+        PORTE->PCR[5] = PORT_PCR_MUX(0);
       if((PORTD->PCR[0]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTD->PCR[0] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch1:
       if((PORTE->PCR[6]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[6] = PORT_PCR_MUX(0); 
+        PORTE->PCR[6] = PORT_PCR_MUX(0);
       if((PORTD->PCR[1]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTD->PCR[1] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch2:
       if((PORTE->PCR[7]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[7] = PORT_PCR_MUX(0); 
+        PORTE->PCR[7] = PORT_PCR_MUX(0);
       if((PORTD->PCR[2]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTD->PCR[2] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch3:
       if((PORTE->PCR[8]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[8] = PORT_PCR_MUX(0); 
+        PORTE->PCR[8] = PORT_PCR_MUX(0);
       if((PORTD->PCR[3]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
         PORTD->PCR[3] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch4:
       if((PORTE->PCR[9]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[9] = PORT_PCR_MUX(0); 
+        PORTE->PCR[9] = PORT_PCR_MUX(0);
       if((PORTC->PCR[8]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTC->PCR[8] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch5:
       if((PORTE->PCR[10]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[10] = PORT_PCR_MUX(0); 
+        PORTE->PCR[10] = PORT_PCR_MUX(0);
       if((PORTC->PCR[9]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTC->PCR[9] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch6:
       if((PORTE->PCR[11]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[11] = PORT_PCR_MUX(0); 
+        PORTE->PCR[11] = PORT_PCR_MUX(0);
       if((PORTC->PCR[10]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTC->PCR[10] = PORT_PCR_MUX(0);
       break;
     case FTM_Ch7:
       if((PORTE->PCR[12]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
-        PORTE->PCR[12] = PORT_PCR_MUX(0); 
+        PORTE->PCR[12] = PORT_PCR_MUX(0);
       if((PORTC->PCR[11]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
         PORTC->PCR[11] = PORT_PCR_MUX(0);
       break;
     default:
-      return 0;     
+      return 0;
     }
   }
 #endif
@@ -1336,22 +1336,22 @@ static uint8 LPLD_FTM_QD_Init(FTM_InitTypeDef ftm_init_structure)
 {
   uint8 mode = ftm_init_structure.FTM_QdMode;
   FTM_Type *ftmx = ftm_init_structure.FTM_Ftmx;
- 
-  ftmx->MODE |= FTM_MODE_FTMEN_MASK;    //FTM2EN=1   
-  
-  ftmx->CNTIN = 0;//FTM0计数器初始值为0  
-  ftmx->CNT=0;  
-  ftmx->MOD = 0xFFFF;//结束值  
-  
+
+  ftmx->MODE |= FTM_MODE_FTMEN_MASK;    //FTM2EN=1
+
+  ftmx->CNTIN = 0;//FTM0计数器初始值为0
+  ftmx->CNT=0;
+  ftmx->MOD = 0xFFFF;//结束值
+
   ftmx->QDCTRL |= mode;     //解码模式选择
-  ftmx->QDCTRL |= FTM_QDCTRL_QUADEN_MASK;       //使能正交解码模式 
+  ftmx->QDCTRL |= FTM_QDCTRL_QUADEN_MASK;       //使能正交解码模式
 
   return 1;
 }
 
 static uint8 LPLD_FTM_DEC_Init(FTM_InitTypeDef ftm_init_structure)
 {
-  
+
   return 0;
 }
 
@@ -1368,9 +1368,9 @@ void FTM0_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+
   FTM_ISR[0]();
-  
+
 #if (UCOS_II > 0u)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
@@ -1384,9 +1384,9 @@ void FTM1_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+
   FTM_ISR[1]();
-  
+
 #if (UCOS_II > 0u)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
@@ -1400,9 +1400,9 @@ void FTM2_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+
   FTM_ISR[2]();
-  
+
 #if (UCOS_II > 0u)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
@@ -1417,9 +1417,9 @@ void FTM3_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+
   FTM_ISR[3]();
-  
+
 #if (UCOS_II > 0u)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif

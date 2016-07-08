@@ -5,9 +5,10 @@
 #include "SUP_check.h"
 #include "main.h"
 
-extern OvTypeDef			*Ov7725;
+extern OvTypeDef					*Ov7725;
 extern motorPIDTypeDef		        *motor_PID;
-extern MotorTypeDef			*MotorB;
+extern MotorTypeDef					*MotorB;
+extern MotorTypeDef					*MotorF;
 extern ServomotorTypeDef	        *ServoMotor;
 extern WeizhiPIDTypeDef         	*Weizhi_PID;
 extern PhotocellTypeDef				*StartEndLine;
@@ -32,28 +33,27 @@ void pit2_init(void)
 	LPLD_PIT_EnableIrq(pit_init_struct2);
 }
 
-#define ALLOW_PERIOUD		10000 //(单位us)
+#define ALLOW_PERIOUD		 20000 //(单位us)
+#define STOP_PERIOUD		250000 //(单位us)
 void pit2_isr(void)
 {
 	Sys->RunTime++;
-  	if((Ov7725->LOCK == 1)||(StartEndLine->start_end==0)){
+	if(StartEndLine->start_end==0){ // 终止线模式
+		if(((Sys->RunTime-StartEndLine->perioud)*Sys->PeriodUs)>STOP_PERIOUD){
+			LPLD_FTM_PWM_ChangeDuty(MotorF->FTM_Ftmx, MotorF->chn, 0);
+		}
+	}
+	if((Ov7725->LOCK == 1)||(StartEndLine->start_end==0)){ //锁定电机PID: 计算摄像头数据/终止线模式
 		return;
 	}
 	//电机
-//         motor_PID->nowe=(500-(float)(MotorB->Velosity));
 	motor_PID->nowe=((float)MotorB->Target_Velosity-(float)(MotorB->Velosity));
-//         printf("e=%d,\n",(int)(motor_PID->nowe));
 	LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, motor_PID->cal());
-	//舵机
-// 	Weizhi_PID->nowe = (int32)(0 - (Ov7725->pos.deflection + Ov7725->pos.location_bias));
-//	ServoMotor->Deflection = Weizhi_PID->cal();
-//	LPLD_FTM_PWM_ChangeDuty(ServoMotor->FTM_Ftmx, ServoMotor->chn, angle_to_period(ServoMotor->Deflection));
-	if(StartEndLine->start_end!=0){
-		if(((Sys->RunTime-StartEndLine->perioud)*Sys->PeriodUs)>ALLOW_PERIOUD){
-			StartEndLine->lineR = 0;
-			StartEndLine->lineL = 0;
-			StartEndLine->perioud = 0;
-		}
+
+	if(((Sys->RunTime-StartEndLine->perioud)*Sys->PeriodUs)>ALLOW_PERIOUD){
+		StartEndLine->lineR = 0;
+		StartEndLine->lineL = 0;
+		StartEndLine->perioud = 0;
 	}
 }
 /* 程序运行时间测试 */
