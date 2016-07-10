@@ -6,37 +6,36 @@ extern OvTypeDef			*Ov7725;
 extern SystemTypeDef	*Sys;
 extern MotorTypeDef			*MotorB;
 //舵机PID
-ServoPIDTypeDef ServoMotor_PID_struct = { .cal=&Servo_PID_cal,
-											.Kp=0.0001,	.Ti=10000,	.Td=0.00,
-											.nowe=0,	.laste=0,	.paste=0,
-											.dout=0,	.out=0}; // 舵机PID
-ServoPIDTypeDef			*Servo_PID = &ServoMotor_PID_struct;
-int32 Servo_PID_cal(void)
-{
-    Servo_PID->dout =  (int32)(Servo_PID->Kp*   (1.0f+    Servo_PID->Td/(Sys->PeriodUs/1000000.0f)    )*Servo_PID->nowe- \
-			       Servo_PID->Kp*   (1.0f+  2*Servo_PID->Td/(Sys->PeriodUs/1000000.0f)    )*Servo_PID->laste+ \
-			       Servo_PID->Kp*   (         Servo_PID->Td/(Sys->PeriodUs/1000000.0f)    )*Servo_PID->paste);
-	Servo_PID->out = Servo_PID->out + Servo_PID->dout;
-	Servo_PID->paste = Servo_PID->laste;
-	Servo_PID->laste = Servo_PID->nowe;
-	return Servo_PID->out;
-}
+//ServoPIDTypeDef ServoMotor_PID_struct = { .cal=&Servo_PID_cal,
+//											.Kp=0.0001,	.Ti=10000,	.Td=0.00,
+//											.nowe=0,	.laste=0,	.paste=0,
+//											.dout=0,	.out=0}; // 舵机PID
+//ServoPIDTypeDef			*Servo_PID = &ServoMotor_PID_struct;
+//int32 Servo_PID_cal(void)
+//{
+//    Servo_PID->dout =  (int32)(Servo_PID->Kp*   (1.0f+    Servo_PID->Td/(Sys->PeriodUs/1000000.0f)    )*Servo_PID->nowe- \
+//			       Servo_PID->Kp*   (1.0f+  2*Servo_PID->Td/(Sys->PeriodUs/1000000.0f)    )*Servo_PID->laste+ \
+//			       Servo_PID->Kp*   (         Servo_PID->Td/(Sys->PeriodUs/1000000.0f)    )*Servo_PID->paste);
+//	Servo_PID->out = Servo_PID->out + Servo_PID->dout;
+//	Servo_PID->paste = Servo_PID->laste;
+//	Servo_PID->laste = Servo_PID->nowe;
+//	return Servo_PID->out;
+//}
 //舵机位置PD
 WeizhiPIDTypeDef WeizhiMotor_PID_struct = { .cal=&Weizhi_PID_cal,
 											.Kp=0.7,		.Kd=0.00,
 											.nowe=0,	.laste=0,
-											.out=0}; // 舵机位置PD
+											.out=0,		.e_dis=0}; // 舵机位置PD
 WeizhiPIDTypeDef			*Weizhi_PID = &WeizhiMotor_PID_struct;
 int32 Weizhi_PID_cal(void)
 {
-	float e_dis = 0;
-	e_dis = Weizhi_PID->nowe-Weizhi_PID->laste;
+	Weizhi_PID->e_dis = Weizhi_PID->nowe-Weizhi_PID->laste;
 //	if(e_dis>(8/Weizhi_PID->Kp)){
 //		Ov7725->LOCK = 1;
 //		LPLD_FTM_PWM_ChangeDuty(MotorB->FTM_Ftmx, MotorB->chn, INLET_MAX);
 //	}
     Weizhi_PID->out =  (int32)(Weizhi_PID->Kp*       Weizhi_PID->nowe+ \
-			       Weizhi_PID->Kd*       (e_dis) );
+			       Weizhi_PID->Kd*       (Weizhi_PID->e_dis) );
     Weizhi_PID->laste = Weizhi_PID->nowe;
     return Weizhi_PID->out;
 }

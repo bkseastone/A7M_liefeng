@@ -236,22 +236,12 @@ typedef struct
 		char	exit_L;
 		char	exit_R;
 	} pic;
-	//边缘线计算得的数据
-//	struct {
-//		float	border_slope_L;	//左侧边缘线斜率
-//		float	border_slope_R;
-//		char	datum_pointX_L;	//拟合用——左侧边缘线基准点(随意某一行)
-//		char	datum_pointY_L;
-//		char	datum_pointX_R;
-//		char	datum_pointY_R;
-//		int		last_point_L;	//左侧边缘线最后一行的纵坐标
-//		int		last_point_R;
-//	} calparam;
 	//摄像头空间位置数据(2维)
 	struct {
 		int		deflection;		//车头偏角
 		int		location_bias;	//车头距中心线偏差
 	} pos;
+	char CNT;
 } OvTypeDef;
 
 //void ov7725_catch_middleline(void);

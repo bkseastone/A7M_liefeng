@@ -45,13 +45,26 @@ void ftm_motorB_init(void)
 	LPLD_FTM_Init(pwm_init_structB);
 	LPLD_FTM_PWM_Enable(MotorB->FTM_Ftmx, MotorB->chn, MotorB->Duty, MotorB->pin, ALIGN_RIGHT);
 }
-
+#define V_MODE1_NORMAL			420 // 650
+#define V_MODE1_SHIFT			300
 void throttle_control(void)
 {
   if(Ov7725->distance>160){
-    MotorB->Target_Velosity=VELOCITY_MAX;
+//	if(Ov7725->CNT>0){
+//		Ov7725->CNT--;
+//		MotorB->Target_Velosity = VELOCITY_MAX/2;
+//	}
+//	else{
+		MotorB->Target_Velosity = VELOCITY_MAX;
+//	}
   }
   else{
-    MotorB->Target_Velosity = 650;// 650
+//	if(Ov7725->CNT>0){
+//		Ov7725->CNT--;
+//		MotorB->Target_Velosity = V_MODE1_SHIFT;
+//	}
+//	else{
+		MotorB->Target_Velosity = V_MODE1_NORMAL;
+//	}
   }
 }

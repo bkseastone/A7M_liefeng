@@ -17,7 +17,8 @@ OvTypeDef Ov7725_struct={&ov7725_dma_start, &OV_display, &ov7725_cal, &ov7725_re
 					0,
 					{0},
 					//{0},
-					{0}
+					{0},
+					0
 };
 OvTypeDef *Ov7725 = &Ov7725_struct;
 
