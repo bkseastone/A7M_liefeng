@@ -28,7 +28,7 @@ void init_photocellB2B3(void)
 	StartEndLine->perioud = 0;
 	StartEndLine->alert = 0;
 }
-#define STARTTIME		3000000
+#define STARTTIME		30000
 #define STOPVALTAGE		4500
 void photocell_isr(void)
 {

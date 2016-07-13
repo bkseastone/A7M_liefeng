@@ -64,12 +64,12 @@ void ov7725_cal(void)
 	Ov7725->LOCK = 1;
 	StartEndLine->alert = 0;
 	Ov7725->mode = 0;
-	if(fabsf(Weizhi_PID->e_dis)<=16){
-		Ov7725->CNT = 0;
-	}
-	else{
-		Ov7725->CNT = SHIFT_TINE;
-	}
+//	if(fabsf(Weizhi_PID->e_dis)<=16){
+//		Ov7725->CNT = 0;
+//	}
+//	else{
+//		Ov7725->CNT = SHIFT_TINE;
+//	}
 	Ov7725->pic.exit_L = 1;
 	Ov7725->pic.exit_R = 1;
 	Ov7725->pos.deflection = 0;
@@ -194,6 +194,12 @@ void ov7725_cal(void)
 	}
 	if((Ov7725->distance) <= 70){
 		Ov7725->mode = 1;
+	}
+	if((Ov7725->distance>200)||(fabsf(tmp_deflection)>0.85)){ //此处参数待测bug
+		StartEndLine->alert = 1;
+	}
+	else{
+		StartEndLine->alert = 0;
 	}
 	throttle_control();
 /*	调试小S弯用
