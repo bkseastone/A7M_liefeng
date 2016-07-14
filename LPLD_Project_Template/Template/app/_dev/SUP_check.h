@@ -11,8 +11,10 @@ typedef struct
 	char alert;
 	uint32 perioud;
 } PhotocellTypeDef;
-
+//光电管
 void init_photocellB2B3(void);
 void photocell_isr(void);
 void init_led(void);
+//拨码开关
+void init_PlanSelection(void);
 #endif

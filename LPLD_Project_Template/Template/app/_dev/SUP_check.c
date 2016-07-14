@@ -28,6 +28,20 @@ void init_photocellB2B3(void)
 	StartEndLine->perioud = 0;
 	StartEndLine->alert = 0;
 }
+/*	拨码开关
+	OFF 1			ON 0
+	pin4-11  <=>  key8-1
+*/
+void init_PlanSelection(void)
+{
+	GPIO_InitTypeDef gpio_init_struct;
+
+	gpio_init_struct.GPIO_PTx = PTB;
+	gpio_init_struct.GPIO_Pins = GPIO_Pin4|GPIO_Pin5|GPIO_Pin6|GPIO_Pin7|GPIO_Pin8|GPIO_Pin9|GPIO_Pin10|GPIO_Pin11;
+	gpio_init_struct.GPIO_Dir = DIR_INPUT;
+	gpio_init_struct.GPIO_PinControl = IRQC_DIS;
+	LPLD_GPIO_Init(gpio_init_struct);
+}
 #define STARTTIME		30000
 #define STOPVALTAGE		4500
 void photocell_isr(void)

@@ -45,7 +45,7 @@ void ftm_motorB_init(void)
 	LPLD_FTM_Init(pwm_init_structB);
 	LPLD_FTM_PWM_Enable(MotorB->FTM_Ftmx, MotorB->chn, MotorB->Duty, MotorB->pin, ALIGN_RIGHT);
 }
-#define V_MODE1_NORMAL			420 // 650
+uint16 V_MODE1_NORMAL=650; // 650
 #define V_MODE1_SHIFT			300
 void throttle_control(void)
 {

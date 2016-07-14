@@ -26,6 +26,7 @@ extern motorPIDTypeDef		*motor_PID;
 extern WeizhiPIDTypeDef		*Weizhi_PID;
 extern int                  Sflag;
 extern OV_pictureTypeDef_SRAM	OV_pictures_SRAM @(OV_binary_ADDR+2);
+extern uint16 V_MODE1_NORMAL;
 #pragma optimize=none
 void main (void)
 {
@@ -39,6 +40,13 @@ void main (void)
 	Encoder_Test->init();
 	Sys->init();
 	init_photocellB2B3();
+	init_PlanSelection();
+	if(PTBn_I(4)==1){
+		V_MODE1_NORMAL = 600;
+	}
+	else{
+		V_MODE1_NORMAL = 500;
+	}
 	while(1)
 	{
 		if(Ov7725->Is_DispPhoto){
