@@ -10,6 +10,7 @@ OvTypeDef Ov7725_struct={&ov7725_dma_start, &OV_display, &ov7725_cal, &ov7725_re
 					CAMERA_W, CAMERA_H, CAMERA_PAGE, CAMERA_CNST,
 					1,
 					0,
+					0,
 					1,
 					0.8,
 					0,

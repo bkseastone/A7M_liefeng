@@ -217,6 +217,7 @@ typedef struct
 	char 	CAM_PAGE;
 	char	Contrast;
 	uint8 	Is_DispPhoto;
+	char	SHIFT;
 	char	mode;
 	char	GOODSTATUS;
 	float	gain;

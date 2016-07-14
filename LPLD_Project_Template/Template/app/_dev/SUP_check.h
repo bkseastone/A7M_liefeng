@@ -17,4 +17,5 @@ void photocell_isr(void);
 void init_led(void);
 //拨码开关
 void init_PlanSelection(void);
+void init_bell(void);
 #endif

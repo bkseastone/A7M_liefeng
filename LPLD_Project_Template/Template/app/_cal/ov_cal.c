@@ -48,7 +48,7 @@ uint8				 Sflag_MARK = 0;
 #define	SERVO_PID_KP_C_s 0.35		//小s弯
 #define	SERVO_PID_KP_C	0.7		//弯道 0.7
 #define	SERVO_PID_KP_B	0.7		//障碍
-#define SHIFT_TINE		1
+#define SHIFT_TINE		33
 #pragma optimize=speed
 void ov7725_cal(void)
 {
@@ -62,14 +62,18 @@ void ov7725_cal(void)
 	int tmpL_location_bias2;
 	int tmpR_location_bias2;
 	Ov7725->LOCK = 1;
-	StartEndLine->alert = 0;
+//	StartEndLine->alert = 0;
 	Ov7725->mode = 0;
-//	if(fabsf(Weizhi_PID->e_dis)<=16){
-//		Ov7725->CNT = 0;
-//	}
-//	else{
-//		Ov7725->CNT = SHIFT_TINE;
-//	}
+	if((Ov7725->SHIFT == 1)&&(Ov7725->CNT==0)){
+		if(fabsf(Weizhi_PID->e_dis)<=14){
+			Ov7725->CNT = 0;
+			PTA25_O = 0;//bell
+		}
+		else{
+			Ov7725->CNT = SHIFT_TINE;
+			PTA25_O = 1;//bell
+		}
+	}
 	Ov7725->pic.exit_L = 1;
 	Ov7725->pic.exit_R = 1;
 	Ov7725->pos.deflection = 0;
@@ -225,7 +229,7 @@ void ov7725_cal(void)
 			Sflag_MARK = 0;
 			Sflag = 0;
 		}
-		MotorB->Target_Velosity=700; //700
+		MotorB->Target_Velosity=550; //700
 		Weizhi_PID->Kp = SERVO_PID_KP_C_s;
 		Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2 + POS_curve_S);
 //		Ov7725->pos.deflection = 0;
@@ -243,6 +247,7 @@ void ov7725_cal(void)
 	//直道
 	if((Ov7725->mode == 0)||(Ov7725->mode == 3)){
 		Weizhi_PID->Kd = 0;
+		StartEndLine->alert = 1;
 		//斜率
 		if((Ov7725->pic.start_R - Ov7725->pic.end_R)>(Ov7725->pic.start_L - Ov7725->pic.end_L)){
 			tmp_deflection = (((float)(RectifyX[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]])- \

@@ -27,6 +27,7 @@ extern WeizhiPIDTypeDef		*Weizhi_PID;
 extern int                  Sflag;
 extern OV_pictureTypeDef_SRAM	OV_pictures_SRAM @(OV_binary_ADDR+2);
 extern uint16 V_MODE1_NORMAL;
+extern uint16 V_MODE1_SHIFT;
 #pragma optimize=none
 void main (void)
 {
@@ -41,12 +42,22 @@ void main (void)
 	Sys->init();
 	init_photocellB2B3();
 	init_PlanSelection();
-	if(PTBn_I(4)==1){
-		V_MODE1_NORMAL = 600;
+	init_bell();
+	if(PTBn_I(5)==1){
+		Ov7725->SHIFT = 1;
 	}
 	else{
-		V_MODE1_NORMAL = 500;
+		Ov7725->SHIFT = 0;
 	}
+	if(PTBn_I(4)==1){
+		V_MODE1_NORMAL = 650;
+		V_MODE1_SHIFT = 420;
+	}
+	else{
+		V_MODE1_NORMAL = 550;
+		V_MODE1_SHIFT = 420;
+	}
+	Ov7725->CNT = 0;
 	while(1)
 	{
 		if(Ov7725->Is_DispPhoto){

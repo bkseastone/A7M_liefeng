@@ -42,7 +42,7 @@ void init_PlanSelection(void)
 	gpio_init_struct.GPIO_PinControl = IRQC_DIS;
 	LPLD_GPIO_Init(gpio_init_struct);
 }
-#define STARTTIME		30000
+#define STARTTIME		3000000
 #define STOPVALTAGE		4500
 void photocell_isr(void)
 {
@@ -50,7 +50,7 @@ void photocell_isr(void)
 	if((StartEndLine->start_end == 1)&&((Sys->RunTime)*Sys->PeriodUs>STARTTIME)){
 		if(LPLD_GPIO_IsPinxExt(PORTB, GPIO_Pin3))
 		{
-			if(PTBn_I(3)==1)
+			if(PTBn_I(3)==0)
 			{
 				StartEndLine->lineL = 1;
 				if(StartEndLine->perioud==0){
@@ -112,6 +112,18 @@ void init_led(void)
 	gpio_init_struct.GPIO_Pins = GPIO_Pin8;
 	gpio_init_struct.GPIO_Dir = DIR_OUTPUT;
 	gpio_init_struct.GPIO_Output = OUTPUT_H;
+	gpio_init_struct.GPIO_PinControl = IRQC_DIS;
+	LPLD_GPIO_Init(gpio_init_struct);
+}
+
+void init_bell(void)
+{
+	GPIO_InitTypeDef gpio_init_struct;
+
+	gpio_init_struct.GPIO_PTx = PTA;
+	gpio_init_struct.GPIO_Pins = GPIO_Pin25;
+	gpio_init_struct.GPIO_Dir = DIR_OUTPUT;
+	gpio_init_struct.GPIO_Output = OUTPUT_L;
 	gpio_init_struct.GPIO_PinControl = IRQC_DIS;
 	LPLD_GPIO_Init(gpio_init_struct);
 }
