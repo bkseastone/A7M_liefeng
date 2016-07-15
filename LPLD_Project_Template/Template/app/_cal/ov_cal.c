@@ -47,9 +47,9 @@ uint16				 Velosity_s = 550;
 //PID参数
 #define	SERVO_PID_KP_S	0.4		//直道
 #define	SERVO_PID_KP_C_s 0.35		//小s弯
-#define	SERVO_PID_KP_C	0.7		//弯道 0.7
+float SERVO_PID_KP_C=0.7;		//弯道 0.7
 #define	SERVO_PID_KP_B	0.7		//障碍
-#define SHIFT_TINE		26
+#define SHIFT_TINE		33 //26
 
 #define CNST_threshold_c 750
 #pragma optimize=speed
@@ -68,7 +68,7 @@ void ov7725_cal(void)
 //	StartEndLine->alert = 0;
 	Ov7725->mode = 0;
 	if((Ov7725->SHIFT == 1)&&(Ov7725->CNT==0)){
-		if(fabsf(Weizhi_PID->e_dis)<=12){
+		if(fabsf(Weizhi_PID->e_dis)<=10){
 			Ov7725->CNT = 0;
 			#if defined(DEBUG_PRINT)
 			PTA25_O = 0;//bell
@@ -86,10 +86,10 @@ void ov7725_cal(void)
 	Ov7725->pos.deflection = 0;
 	ov7725_get_border();//沿缘线寻黑边
 	if(Ov7725->mode == 6){
-		Ov7725->pos.location_bias = -40;
+		Ov7725->pos.location_bias = -35;
 	}
 	else if(Ov7725->mode == 9){
-		Ov7725->pos.location_bias = 40;
+		Ov7725->pos.location_bias = 35;
 	}
 	ov7725_get_2slope();//提取边线信息
 	//待定的二次关系(为方便调试，暂时用Servo_PID->Kp代替)
@@ -206,7 +206,7 @@ void ov7725_cal(void)
 	if((Ov7725->distance) <= 70){
 		Ov7725->mode = 1;
 	}
-	if((Ov7725->distance>200)||(fabsf(tmp_deflection)>0.85)){ //此处参数待测bug
+	if((Ov7725->distance>200)||(fabsf(tmp_deflection)>0.8)){ //此处参数待测bug
 		StartEndLine->alert = 1;
 	}
 	else{
@@ -217,7 +217,7 @@ void ov7725_cal(void)
 	Ov7725->GOODSTATUS = 1;
 	Ov7725->distance = 200;
 */
-	if(PTBn_I(9)==1){
+	if(PTBn_I(9)==1){ //3
 		if((Sflag==0)&&(Ov7725->mode != 3)){
 			ov7725_Spanduan();
 		}
@@ -309,6 +309,10 @@ void ov7725_cal(void)
 			else{
 				Ov7725->pos.location_bias = (int)(CNST9*(float)(40-((col_bar_L+Ov7725->pic.border_pos_L[row_bar])/2)));
 			}
+			Ov7725->CNT = SHIFT_TINE*5;
+			#if defined(DEBUG_PRINT)
+			PTA25_O = 1;//bell
+			#endif
 			Weizhi_PID->Kp = SERVO_PID_KP_B;
 //			printf("%d, %d, %d\n",row_bar, col_bar_L, col_bar_R);
 		}
