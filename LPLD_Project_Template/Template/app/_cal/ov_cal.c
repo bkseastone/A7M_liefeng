@@ -68,7 +68,7 @@ void ov7725_cal(void)
 //	StartEndLine->alert = 0;
 	Ov7725->mode = 0;
 	if((Ov7725->SHIFT == 1)&&(Ov7725->CNT==0)){
-		if(fabsf(Weizhi_PID->e_dis)<=13){
+		if(fabsf(Weizhi_PID->e_dis)<=12){
 			Ov7725->CNT = 0;
 			#if defined(DEBUG_PRINT)
 			PTA25_O = 0;//bell
@@ -217,31 +217,32 @@ void ov7725_cal(void)
 	Ov7725->GOODSTATUS = 1;
 	Ov7725->distance = 200;
 */
-	if((Sflag==0)&&(Ov7725->mode != 3)){
-		ov7725_Spanduan();
-	}
-	if(Sflag>=1){
-		Weizhi_PID->Kd = 5;
-		Ov7725->GOODSTATUS = 1;
-		Ov7725->distance = 200;//go on
-		StartEndLine->alert = 0;
-		tmp = 0;
-		for(row=0;row<=9;row++){
-			tmp += (!OV_pictures_SRAM.pic1_data[13][row]);
+	if(PTBn_I(9)==1){
+		if((Sflag==0)&&(Ov7725->mode != 3)){
+			ov7725_Spanduan();
 		}
-		if(tmp==0){
-			Sflag_MARK ++;
+		if(Sflag>=1){
+			Weizhi_PID->Kd = 5;
+			Ov7725->GOODSTATUS = 1;
+			Ov7725->distance = 200;//go on
+			StartEndLine->alert = 0;
+			tmp = 0;
+			for(row=0;row<=9;row++){
+				tmp += (!OV_pictures_SRAM.pic1_data[13][row]);
+			}
+			if(tmp==0){
+				Sflag_MARK ++;
+			}
+			if(Sflag_MARK >= 10){
+				Sflag_MARK = 0;
+				Sflag = 0;
+			}
+			MotorB->Target_Velosity=Velosity_s; //700
+			Weizhi_PID->Kp = SERVO_PID_KP_C_s;
+			Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2 + POS_curve_S);
+			Ov7725->LOCK = 0;
+			return;
 		}
-		if(Sflag_MARK >= 10){
-			Sflag_MARK = 0;
-			Sflag = 0;
-		}
-		MotorB->Target_Velosity=Velosity_s; //700
-		Weizhi_PID->Kp = SERVO_PID_KP_C_s;
-		Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2 + POS_curve_S);
-//		Ov7725->pos.deflection = 0;
-		Ov7725->LOCK = 0;
-		return;
 	}
 	//十字
 	if(Ov7725->mode ==2){
@@ -319,16 +320,18 @@ void ov7725_cal(void)
 	}
 	//弯道
 	if(Ov7725->mode == 1){
-		if(MotorB->Velosity>CNST_threshold_c){
-			Ov7725->CNT = SHIFT_TINE/2;
-			#if defined(DEBUG_PRINT)
-			PTA25_O = 1;//bell
-			#endif
-		}
-		else{
-			#if defined(DEBUG_PRINT)
-			PTA25_O = 0;//bell
-			#endif
+		if(Ov7725->SHIFT == 1){
+			if(MotorB->Velosity>CNST_threshold_c){
+				Ov7725->CNT = SHIFT_TINE/2;
+				#if defined(DEBUG_PRINT)
+				PTA25_O = 1;//bell
+				#endif
+			}
+			else{
+				#if defined(DEBUG_PRINT)
+				PTA25_O = 0;//bell
+				#endif
+			}
 		}
 		//紧急情况
 		if(Ov7725->distance <= 40){

@@ -86,13 +86,6 @@ void main (void)
 
 void plan_select(void)
 {
-
-//	if(PTBn_I(10)==1){ //2
-//
-//	}
-//	else{
-//
-//	}
 //	if(PTBn_I(9)==1){ //3
 //
 //	}
@@ -119,10 +112,11 @@ void plan_select(void)
 	}
 	if(PTBn_I(5)==1){ //7
 		Ov7725->SHIFT = 0;
+//		V_MODE1_SHIFT = V_MODE1_NORMAL;
 	}
 	else{
 		Ov7725->SHIFT = 1;
-		V_MODE1_SHIFT = 500;
+		V_MODE1_SHIFT = 450;
 	}
 	if(PTBn_I(4)==1){ //8
 		V_MODE1_NORMAL = 650;
@@ -133,7 +127,7 @@ void plan_select(void)
 	if(PTBn_I(10)==0){ //1
 		VELOCITY_MAX = 900;
 		V_MODE1_NORMAL = 420;
-		V_MODE1_SHIFT = 420;
+		V_MODE1_SHIFT = 400;
 //		Velosity_s = 550;
 	}
 	Ov7725->CNT = 0;
