@@ -23,6 +23,8 @@ int tmpR_location_bias3;
 uint8                Sflag=0;
 uint8				 Sflag_MARK = 0;
 uint16				 Velosity_s = 550;
+uint8                Sstart=0;
+uint8                zhongxin=0;
 //权重
 #define CNST_3			2.0f	//曲率变化灵敏度(只能看到一边时)
 #define CNST_4			1.0f	//(MotorB->Velosity/150)	//曲率变化灵敏度(两边都能看到时)(弯道时)(取弯道外侧曲率)
@@ -1018,6 +1020,8 @@ void ov7725_Spanduan(void)
 	//     printf("%d\n",Zuobiao2[jishu+1][1]-Zuobiao2[jishu][1]);
 		if ((Zuobiao2[jishu][1]-Zuobiao2[jishu+1][1])>=55&&(Zuobiao2[jishu][1]-Zuobiao2[jishu+1][1])<=90&&jishu+1!=1&&Zuobiao2[jishu+1][1]>=32){
 			Sflag=1;
+            Sstart=1;
+            zhongxin=40;
 			break;
 		}
 		if (Zuobiao2[jishu+2][1]==0)
@@ -1032,4 +1036,62 @@ void ov7725_Spanduan(void)
 	  Zuobiao[jishu][0]=0;
 	  Zuobiao[jishu][1]=0;
 	}
+}
+void ov7725_Schu(void)
+{
+  int8 jishu2=0;
+  uint8 jishu3=0;
+  uint8 zb=0;
+  uint8 yb=0;
+  if (Sstart==1)
+  {
+    for (jishu3=59;jishu3>=13;jishu3--)
+    {
+    for (jishu2=zhongxin;jishu2<=79;jishu2++)
+    {
+      if (OV_pictures.pic1_data[jishu3][jishu2]==0)
+      {yb=jishu2;
+      break;}
+      else if (jishu2==79&&OV_pictures.pic1_data[jishu3][jishu2]==1)
+      {yb=jishu2;
+      break;}
+    }
+    for (jishu2=zhongxin-1;jishu2>=0;jishu2--)
+    {
+      if (OV_pictures.pic1_data[jishu3][jishu2]==0)
+      {zb=jishu2;
+      break;}
+      else if (jishu2==0&&OV_pictures.pic1_data[jishu3][jishu2]==1)
+      {zb=jishu2;
+      break;}
+    }
+    zhongxin=(zb+yb)/2;
+    }
+    Sstart=0;
+  }
+  else
+  {
+    for (jishu2=zhongxin;jishu2<=79;jishu2++)
+    {
+      if (OV_pictures.pic1_data[13][jishu2]==0)
+      {yb=jishu2;
+      break;}
+      else if (jishu2==79&&OV_pictures.pic1_data[13][jishu2]==1)
+      {yb=jishu2;
+      break;}
+    }
+    for (jishu2=zhongxin-1;jishu2>=0;jishu2--)
+    {
+      if (OV_pictures.pic1_data[13][jishu2]==0)
+      {zb=jishu2;
+      break;}
+      else if (jishu2==0&&OV_pictures.pic1_data[13][jishu2]==1)
+      {zb=jishu2;
+      break;}
+    }
+    zhongxin=(zb+yb)/2;
+  };
+
+  if (zhongxin<=3||zhongxin>=77)
+  {Sflag = 0;}
 }
