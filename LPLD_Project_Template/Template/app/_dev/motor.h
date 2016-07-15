@@ -2,8 +2,8 @@
 #ifndef _MOTOR_H_
 #define _MOTOR_H_
 
-#define INLET_MAX	                3500	//3500
-#define VELOCITY_MAX                900		//900
+#define INLET_MAX	                5000	//3500
+//#define VELOCITY_MAX                900		//900
 typedef struct
 {
 	void (*init)();

@@ -34,7 +34,7 @@ void pit2_init(void)
 }
 
 #define ALLOW_PERIOUD		 20000 //(单位us)
-#define STOP_PERIOUD		250000 //(单位us)
+#define STOP_PERIOUD		600000 //(单位us)
 void pit2_isr(void)
 {
 	Sys->RunTime++;

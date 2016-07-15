@@ -22,6 +22,7 @@ int tmpL_location_bias3;
 int tmpR_location_bias3;
 uint8                Sflag=0;
 uint8				 Sflag_MARK = 0;
+uint16				 Velosity_s = 550;
 //权重
 #define CNST_3			2.0f	//曲率变化灵敏度(只能看到一边时)
 #define CNST_4			1.0f	//(MotorB->Velosity/150)	//曲率变化灵敏度(两边都能看到时)(弯道时)(取弯道外侧曲率)
@@ -48,7 +49,9 @@ uint8				 Sflag_MARK = 0;
 #define	SERVO_PID_KP_C_s 0.35		//小s弯
 #define	SERVO_PID_KP_C	0.7		//弯道 0.7
 #define	SERVO_PID_KP_B	0.7		//障碍
-#define SHIFT_TINE		33
+#define SHIFT_TINE		26
+
+#define CNST_threshold_c 750
 #pragma optimize=speed
 void ov7725_cal(void)
 {
@@ -65,13 +68,17 @@ void ov7725_cal(void)
 //	StartEndLine->alert = 0;
 	Ov7725->mode = 0;
 	if((Ov7725->SHIFT == 1)&&(Ov7725->CNT==0)){
-		if(fabsf(Weizhi_PID->e_dis)<=14){
+		if(fabsf(Weizhi_PID->e_dis)<=13){
 			Ov7725->CNT = 0;
+			#if defined(DEBUG_PRINT)
 			PTA25_O = 0;//bell
+			#endif
 		}
 		else{
 			Ov7725->CNT = SHIFT_TINE;
+			#if defined(DEBUG_PRINT)
 			PTA25_O = 1;//bell
+			#endif
 		}
 	}
 	Ov7725->pic.exit_L = 1;
@@ -229,7 +236,7 @@ void ov7725_cal(void)
 			Sflag_MARK = 0;
 			Sflag = 0;
 		}
-		MotorB->Target_Velosity=550; //700
+		MotorB->Target_Velosity=Velosity_s; //700
 		Weizhi_PID->Kp = SERVO_PID_KP_C_s;
 		Ov7725->pos.location_bias = (int)((CNST6*(tmpR_location_bias - tmpL_location_bias) + CNST7*((float)tmpR_location_bias2 - tmpL_location_bias2))/2 + POS_curve_S);
 //		Ov7725->pos.deflection = 0;
@@ -248,6 +255,7 @@ void ov7725_cal(void)
 	if((Ov7725->mode == 0)||(Ov7725->mode == 3)){
 		Weizhi_PID->Kd = 0;
 		StartEndLine->alert = 1;
+		Ov7725->CNT = 0;
 		//斜率
 		if((Ov7725->pic.start_R - Ov7725->pic.end_R)>(Ov7725->pic.start_L - Ov7725->pic.end_L)){
 			tmp_deflection = (((float)(RectifyX[Ov7725->pic.start_R][Ov7725->pic.border_pos_R[Ov7725->pic.start_R]])- \
@@ -311,6 +319,17 @@ void ov7725_cal(void)
 	}
 	//弯道
 	if(Ov7725->mode == 1){
+		if(MotorB->Velosity>CNST_threshold_c){
+			Ov7725->CNT = SHIFT_TINE/2;
+			#if defined(DEBUG_PRINT)
+			PTA25_O = 1;//bell
+			#endif
+		}
+		else{
+			#if defined(DEBUG_PRINT)
+			PTA25_O = 0;//bell
+			#endif
+		}
 		//紧急情况
 		if(Ov7725->distance <= 40){
 			if(Ov7725->pic.exit_L){
@@ -508,6 +527,22 @@ void ov7725_get_border(void)
 		}
 		else{
 			Ov7725->pic.border_pos_R[row] = 80;
+		}
+		for(col=0;col<(CAMERA_W/2-1);col++){
+			if(OV_pictures.pic1_data[row][col]==0){
+				if(Ov7725->pic.border_pos_L[row] != col-1){
+					Ov7725->pic.border_pos_L[row] = 80;
+				}
+				break;
+			}
+		}
+		for(col=CAMERA_W-1;col>(CAMERA_W/2-1);col--){
+			if(OV_pictures.pic1_data[row][col]==0){
+				if(Ov7725->pic.border_pos_R[row] != col+1){
+					Ov7725->pic.border_pos_R[row] = 0;
+				}
+				break;
+			}
 		}
 		//若第一行39列和40列都为黑边的处理方案
 		if(row==59){

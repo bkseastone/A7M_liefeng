@@ -72,7 +72,7 @@ typedef unsigned char   boolean;      /* 8-bit*/
  */
 #ifndef __IAR_SYSTEMS_ICC__
   #warning OSKineits仅支持IAR编译器[http://www.lpld.cn]
-  #define RAMFUNC 
+  #define RAMFUNC
 #else
   #define RAMFUNC __ramfunc
 #endif
@@ -86,8 +86,8 @@ typedef unsigned char   boolean;      /* 8-bit*/
  * 使用断言判断参数合法性
  */
 #define DEBUG_ASSERT
-   
-/* 
+
+/*
  * 包含开发平台指定的头文件
  * 如果使用拉普兰德开发板需定义LPLD_K60
  * 如果提示"未定义K60开发平台"，需在工程选项中添加定义
@@ -97,8 +97,8 @@ typedef unsigned char   boolean;      /* 8-bit*/
 #else
   #error "未定义K60开发平台"
 #endif
-   
-/* 
+
+/*
  * 包含CPU指定的头文件
  * CPU型号应该在"开发平台指定的头文件"中定义
  */
@@ -113,7 +113,7 @@ typedef unsigned char   boolean;      /* 8-bit*/
 #endif
 
 
-/* 
+/*
  * 包含通用功能函数
  */
 #include "assert.h"
@@ -125,19 +125,19 @@ typedef unsigned char   boolean;      /* 8-bit*/
 	#include "intrinsics.h"
 #endif
 
-/* 
+/*
  * 包含拉普兰德K60固件库头文件
  */
 #include "LPLD_Drivers.h"
 
-/* 
+/*
  * 包含实时系统头文件
  */
 #if (UCOS_II > 0u)
 #include  <ucos_ii.h>
 #endif
 
-/* 
+/*
  * 包含文件系统头文件
  */
 #if (USE_FATFS > 0u)
@@ -145,7 +145,7 @@ typedef unsigned char   boolean;      /* 8-bit*/
 #endif
 
 /***********************************************************************/
-/* 
+/*
  * 中断相关函数定义
  */
 //使能全局中断宏定义
@@ -160,7 +160,7 @@ typedef unsigned char   boolean;      /* 8-bit*/
 #define write_vtor(vector_addr) SCB->VTOR = (uint32_t)vector_addr;
 /***********************************************************************/
 
-/* 
+/*
  * 用户入口函数声明
  */
 void main(void);

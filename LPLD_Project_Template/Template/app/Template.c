@@ -28,6 +28,10 @@ extern int                  Sflag;
 extern OV_pictureTypeDef_SRAM	OV_pictures_SRAM @(OV_binary_ADDR+2);
 extern uint16 V_MODE1_NORMAL;
 extern uint16 V_MODE1_SHIFT;
+extern uint16 Velosity_s;
+extern uint16 VELOCITY_MAX;
+void plan_select(void);
+//#undefine					DEBUG_PRINT
 #pragma optimize=none
 void main (void)
 {
@@ -43,21 +47,7 @@ void main (void)
 	init_photocellB2B3();
 	init_PlanSelection();
 	init_bell();
-	if(PTBn_I(5)==1){
-		Ov7725->SHIFT = 1;
-	}
-	else{
-		Ov7725->SHIFT = 0;
-	}
-	if(PTBn_I(4)==1){
-		V_MODE1_NORMAL = 650;
-		V_MODE1_SHIFT = 420;
-	}
-	else{
-		V_MODE1_NORMAL = 550;
-		V_MODE1_SHIFT = 420;
-	}
-	Ov7725->CNT = 0;
+	plan_select();
 	while(1)
 	{
 		if(Ov7725->Is_DispPhoto){
@@ -70,7 +60,7 @@ void main (void)
 			Weizhi_PID->nowe = 0 - (Ov7725->pos.deflection + Ov7725->pos.location_bias);
 			ServoMotor->Deflection = Weizhi_PID->cal();
 			LPLD_FTM_PWM_ChangeDuty(ServoMotor->FTM_Ftmx, ServoMotor->chn, angle_to_period(ServoMotor->Deflection));
-//			#if defined(DEBUG_PRINT)
+			#if defined(DEBUG_PRINT)
 //				printf("L(H): %d--->%d\n", Ov7725->pic.start_L, Ov7725->pic.end_L);
 //				printf("R(H): %d--->%d\n", Ov7725->pic.start_R, Ov7725->pic.end_R);
 //				printf("L: %d	R: %d\n", Ov7725->pic.exit_L, Ov7725->pic.exit_R);
@@ -85,11 +75,66 @@ void main (void)
 //				OV_delay();
 			/*ͼƬ*/
 //				Ov7725->display();
-//			#endif
+			#endif
 			Ov7725->restart();
 		}
 
 //		while(Bluetooth->Command.STOP)
 //		{	;	}
 	}
+}
+
+void plan_select(void)
+{
+
+//	if(PTBn_I(10)==1){ //2
+//
+//	}
+//	else{
+//
+//	}
+//	if(PTBn_I(9)==1){ //3
+//
+//	}
+//	else{
+//
+//	}
+//	if(PTBn_I(8)==1){ //4
+//
+//	}
+//	else{
+//
+//	}
+	if(PTBn_I(7)==1){ //5
+		VELOCITY_MAX = 900;
+	}
+	else{
+		VELOCITY_MAX = 1100;
+	}
+	if(PTBn_I(6)==1){ //6
+		Velosity_s = 700;
+	}
+	else{
+		Velosity_s = 550;
+	}
+	if(PTBn_I(5)==1){ //7
+		Ov7725->SHIFT = 0;
+	}
+	else{
+		Ov7725->SHIFT = 1;
+		V_MODE1_SHIFT = 500;
+	}
+	if(PTBn_I(4)==1){ //8
+		V_MODE1_NORMAL = 650;
+	}
+	else{
+		V_MODE1_NORMAL = 700;
+	}
+	if(PTBn_I(10)==0){ //1
+		VELOCITY_MAX = 900;
+		V_MODE1_NORMAL = 420;
+		V_MODE1_SHIFT = 420;
+//		Velosity_s = 550;
+	}
+	Ov7725->CNT = 0;
 }

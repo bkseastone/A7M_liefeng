@@ -9,7 +9,7 @@ MotorTypeDef Pwm1_A9=	{&ftm_motorF_init, FTM1, FTM_Ch1, PTA9, //后
 				0			//目标速度(cm/s)
 				};
 MotorTypeDef Pwm1_A8=	{&ftm_motorB_init, FTM1, FTM_Ch0, PTA8, //前
-				5000, INLET_MAX,
+				5000, 900,
 				3,
 				3,
 				0
@@ -47,6 +47,7 @@ void ftm_motorB_init(void)
 }
 uint16 V_MODE1_NORMAL=650; // 650
 uint16 V_MODE1_SHIFT=500;
+uint16 VELOCITY_MAX=900;
 void throttle_control(void)
 {
   if(Ov7725->distance>160){
@@ -61,7 +62,7 @@ void throttle_control(void)
   else{
 	if(Ov7725->CNT>0){
 		Ov7725->CNT--;
-		if(Ov7725->mode!=0){
+		if(Ov7725->mode==1){
 			MotorB->Target_Velosity = V_MODE1_SHIFT;
 		}
 	}
